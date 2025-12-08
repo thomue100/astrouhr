@@ -11,6 +11,10 @@
     <div class="container">
         <div class="controls" id="controls">
             <h2 class="app-title">Astronomische Uhr - St. Marien zu Lübeck</h2>
+
+            <div class="controls-header" id="infoButtonHeader" style="cursor: pointer;">
+                ▶️ Einführung & Geschichte anzeigen
+            </div>
             <div class="controls-header" id="controlsHeader">
                 🔽 Bedienfeld verbergen
             </div>
@@ -54,14 +58,68 @@
         </div>
         <canvas id="canvas"></canvas>
     </div>
+
     <div id="dayOfWeekModal" class="modal-overlay">
         <div class="modal-content">
-            <span class="modal-close" onclick="document.getElementById('dayOfWeekModal').style.display='none';">&times;</span>
+            <span id="dayOfWeekModalCloseX" class="modal-close">&times;</span>
             <h3 id="modalTitle">Wochentags-Rechengang</h3>
             <div id="modalBody">
                 Wird geladen...
             </div>
-            <button onclick="document.getElementById('dayOfWeekModal').style.display='none';" style="margin-top: 20px;">Schließen</button>
+            <button id="dayOfWeekModalCloseButton" style="margin-top: 20px;">Schließen</button>
+        </div>
+    </div>
+
+    <div id="infoModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content" style="max-width: 800px; padding: 30px;">
+            <span id="infoModalCloseX" class="modal-close">&times;</span>
+
+            <h3 style="margin-top:0; color:#ffcc33; border-bottom: 1px solid #1a4261; padding-bottom: 10px;">Die Astronomische Uhr der Marienkirche</h3>
+
+            <h4 style="margin-top:15px; color:#aaa;">Simulation & Funktionen</h4>
+            <p style="font-size: 0.9em;">
+                Willkommen zur Simulation der monumentalen astronomischen Uhr in der Marienkirche zu Lübeck, wie sie **1976 fertiggestellt** wurde und die mittelalterliche Tradition repräsentativer Kunstuhren fortführt.
+            </p>
+            <p style="font-size: 0.9em;">
+                Diese Uhr erfüllt traditionell eine fünffache Funktion:
+            </p>
+            <ul style="font-size: 0.9em; margin-top: 5px; padding-left: 20px;">
+                <li>Sie zeigt die Uhrzeit an (durch den Sonnenzeiger).</li>
+                <li>Sie liefert astronomische Daten, insbesondere die Örter von Sonne und Mond in den Tierkreiszeichen und die Mondphase.</li>
+                <li>Sie stellt kalendarische Daten bereit, die für die Ermittlung der Feste im Kirchenjahr wichtig sind.</li>
+            </ul>
+
+            <h4 style="margin-top: 15px; color:#aaa;">So funktioniert die Simulation:</h4>
+            <ul style="font-size: 0.9em; margin-top: 5px; padding-left: 20px;">
+                <li>**Uhrscheibe (Astrolabium):** Beobachten Sie, wie sich der **Sonnenzeiger** (zeigt die Uhrzeit) und der **Mondzeiger** im Verhältnis zur umlaufenden Scheibe der 13 **Tierkreissternbilder** bewegen. Die Tierkreisscheibe dreht sich mit hoher Genauigkeit in siderischer Zeit (23 h 56 min 4,1 s).</li>
+                <li>**Kalenderscheibe:** Hier finden Sie 8 beschriftete Ringe, welche die kalendarischen Daten (wie Tagesbuchstaben, Osterdaten, Goldene Zahl) anzeigen. Typisch für die Lübecker Uhr sind die Angaben zu den **Sonnen- und Mondfinsternissen**.</li>
+                <li>**Steuerung:** Nutzen Sie die Bedienelemente, um die Geschwindigkeit der Animation anzupassen oder ein spezifisches Datum einzugeben, um die **tatsächlichen astronomischen Örter** von Sonne und Mond am Sternenhimmel zu studieren.</li>
+            </ul>
+
+            <hr style="border-top: 1px solid #1a4261; margin-top: 20px; margin-bottom: 20px;" />
+
+            <h3 style="margin-top:0; color:#ffcc33; border-bottom: 1px solid #1a4261; padding-bottom: 10px;">Die Geschichte der Uhr</h3>
+            <h4 style="margin-top: 15px; color:#aaa;">Die Alte Uhr (Geweiht 1405)</h4>
+            <p style="font-size: 0.9em;">
+                Die Tradition dieser monumentalen Kunstuhr begann 1405. Im Jahr 1561 wurde eine umfassende Erweiterung und Erneuerung der Uhrwerke vorgenommen. Die alte Uhr zeigte zusätzlich die Bewegungen der fünf klassischen **Planeten** und besaß Angaben zu **Finsternissen** – ein einzigartiges Merkmal. Im Figurenumgang prozessierten der **Kaiser und die sieben Kurfürsten** vor Christus.
+            </p>
+            <p style="font-size: 0.9em;">
+                Die alte Uhr wurde am **29. März 1942** zusammen mit der Marienkirche bei einem Brand zerstört.
+            </p>
+
+            <h4 style="margin-top: 15px; color:#aaa;">Die Neue Uhr (1955–1976)</h4>
+            <p style="font-size: 0.9em;">
+                Nach der Zerstörung begann der Lübecker Uhrmachermeister **Paul Behrens** 1955 mit der Planung und Neugestaltung. Die neue Uhr ist der alten verpflichtet, aber modernisiert.
+            </p>
+            <p style="font-size: 0.9em;">
+                **Wichtigste Unterschiede zur Vorgängerin:**
+            </p>
+            <ul style="font-size: 0.9em; margin-top: 5px; padding-left: 20px;">
+                <li>Sie zeigt die **tatsächlichen astronomischen Örter** von Sonne und Mond am Sternenhimmel an.</li>
+                <li>Der Figurenumgang zeigt jetzt **acht Figuren verschiedener Hautfarbe und Stände** (z.B. schwarzer Missionar, weißer Arzt, Japanerin, Indianer) anstelle des Kaisers und der Kurfürsten.</li>
+                <li>Der Tierkreisring stellt **13 Sternbilder** (inkl. Schlangenträger) dar, um die tatsächlichen Gegebenheiten genauer abzubilden.</li>
+            </ul>
+            <button id="infoModalCloseButton" style="margin-top: 20px;">Schließen</button>
         </div>
     </div>
     <script type="module">
@@ -76,7 +134,6 @@
 
 
         // GLOBALE KONSTANTEN: Hartkodierte "Lübecker" Grenzwerte für die JS-Prüfung
-        // Das sind die Grenzwerte der Kalenderscheibe.
         const MIN_DATE_LIMIT = new Date('1911-01-01T00:00:00');
         const MAX_DATE_LIMIT = new Date('2080-12-31T23:59:59');
 
@@ -98,10 +155,17 @@
             calendarHeader: document.getElementById('calendarHeader'),
             calendarContent: document.getElementById('calendarContent'),
             calendarInfoDisplay: document.getElementById('calendarInfoDisplay'),
-            btnShowDayOfWeekLogic: document.getElementById('btnShowDayOfWeekLogic'), // NEU
+            btnShowDayOfWeekLogic: document.getElementById('btnShowDayOfWeekLogic'),
             eclipseInfo: document.getElementById('eclipseInfo'),
+            // INFO-ELEMENTE (JETZT ALS MODAL-TRIGGER UND MODAL SELBST)
+            infoButtonHeader: document.getElementById('infoButtonHeader'), // Trigger
+            infoModal: document.getElementById('infoModal'), // Modal-Element
+            infoModalCloseButton: document.getElementById('infoModalCloseButton'), // Knopf-Schließen
+            infoModalCloseX: document.getElementById('infoModalCloseX'), // X-Schließen
             // MODAL-ELEMENTE
             dayOfWeekModal: document.getElementById('dayOfWeekModal'),
+            dayOfWeekModalCloseX: document.getElementById('dayOfWeekModalCloseX'), // X-Schließen
+            dayOfWeekModalCloseButton: document.getElementById('dayOfWeekModalCloseButton'), // Knopf-Schließen
             modalTitle: document.getElementById('modalTitle'),
             modalBody: document.getElementById('modalBody')
         };

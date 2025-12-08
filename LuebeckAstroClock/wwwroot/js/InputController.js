@@ -32,28 +32,36 @@ export class InputController {
     }
 
     _ensureModalHandlers() {
-        // Schließe vorhandene Inline-handler nicht, sondern ergänze sichere Listener
-        const modal = this.dom.dayOfWeekModal;
-        if (!modal) return;
+        const dOWModal = this.dom.dayOfWeekModal;
+        const infoModal = this.dom.infoModal;
 
-        // Ensure high z-index when opened
-        modal.style.zIndex = modal.style.zIndex || '9999';
-
-        // Close button inside modal (if present)
-        const closeBtn = modal.querySelector('.modal-close');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => this.hideModal());
+        if (dOWModal) {
+            dOWModal.style.zIndex = dOWModal.style.zIndex || '9999';
+            // Click outside content closes modal
+            dOWModal.addEventListener('click', (e) => {
+                if (e.target === dOWModal) this.hideModal(dOWModal);
+            });
+            // Attach listeners to the new close buttons
+            if (this.dom.dayOfWeekModalCloseX) this.dom.dayOfWeekModalCloseX.addEventListener('click', () => this.hideModal(dOWModal));
+            if (this.dom.dayOfWeekModalCloseButton) this.dom.dayOfWeekModalCloseButton.addEventListener('click', () => this.hideModal(dOWModal));
         }
 
-        // Click outside content closes modal
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) this.hideModal();
-        });
+        if (infoModal) {
+            infoModal.style.zIndex = infoModal.style.zIndex || '9999';
+            // Click outside content closes modal
+            infoModal.addEventListener('click', (e) => {
+                if (e.target === infoModal) this.hideModal(infoModal);
+            });
+            // Attach listeners to the new close buttons
+            if (this.dom.infoModalCloseX) this.dom.infoModalCloseX.addEventListener('click', () => this.hideModal(infoModal));
+            if (this.dom.infoModalCloseButton) this.dom.infoModalCloseButton.addEventListener('click', () => this.hideModal(infoModal));
+        }
 
-        // Escape key closes modal when focused
+        // Escape key closes any open modal
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modal.style.display === 'flex') {
-                this.hideModal();
+            if (e.key === 'Escape') {
+                if (dOWModal && dOWModal.style.display === 'flex') this.hideModal(dOWModal);
+                if (infoModal && infoModal.style.display === 'flex') this.hideModal(infoModal);
             }
         });
     }
@@ -64,9 +72,20 @@ export class InputController {
         this.dom.btnReset.addEventListener('click', () => this.resetToCurrentTime());
         this.dom.toggleButton.addEventListener('click', () => this.toggleAnimation());
 
+        // FIX 1.1: Listener für das Info-Modal (stoppt jetzt auch die Animation)
+        if (this.dom.infoButtonHeader) {
+            this.dom.infoButtonHeader.addEventListener('click', () => {
+                if (this.state.animationRunning) {
+                    this.toggleAnimation();
+                }
+                this.showModal(this.dom.infoModal);
+            });
+        }
+
         this.dom.controlsHeader.addEventListener('click', () => this.togglePanel('settings'));
         this.dom.calendarHeader.addEventListener('click', () => this.togglePanel('calendar'));
 
+        // Die Funktion showDayOfWeekLogic() enthält bereits die Logik zum Stoppen der Animation
         this.dom.btnShowDayOfWeekLogic.addEventListener('click', () => this.showDayOfWeekLogic());
 
         window.addEventListener('resize', () => this.resizeCanvas());
@@ -99,43 +118,63 @@ export class InputController {
     }
 
     togglePanel(panelName) {
-        const isSettings = panelName === 'settings';
-        const contentToShow = isSettings ? this.dom.controlsContent : this.dom.calendarContent;
-        const contentToHide = isSettings ? this.dom.calendarContent : this.dom.controlsContent;
+        // Map panelName to DOM elements and texts
+        const panels = {
+            'settings': {
+                content: this.dom.controlsContent,
+                header: this.dom.controlsHeader,
+                textOpen: '🔽 Bedienfeld verbergen',
+                textClosed: '▶️ Bedienfeld anzeigen'
+            },
+            'calendar': {
+                content: this.dom.calendarContent,
+                header: this.dom.calendarHeader,
+                textOpen: '🔽 Kalenderdaten verbergen',
+                textClosed: '▶️ Kalenderdaten anzeigen'
+            }
+        };
 
-        const headerToShow = isSettings ? this.dom.controlsHeader : this.dom.calendarHeader;
-        const headerToHide = isSettings ? this.dom.calendarHeader : this.dom.controlsHeader;
+        const panelToToggle = panels[panelName];
 
-        const isCurrentlyHidden = contentToShow.classList.contains('controls-content--hidden');
+        if (!panelToToggle || !panelToToggle.content) return;
 
+        const isCurrentlyHidden = panelToToggle.content.classList.contains('controls-content--hidden');
+
+        // Toggle the selected panel
         if (isCurrentlyHidden) {
-
-            // NEUER CODE HIER
-            // Wenn das Kalender-Panel geöffnet wird UND die Animation läuft, stoppe die Animation.
-            if (!isSettings && this.state.animationRunning) {
-                this.toggleAnimation(); // Stoppt die Animation und ändert den Button-Text auf '▶️ Animation starten'
-            }
-            // ENDE NEUER CODE
-
-            contentToShow.classList.remove('controls-content--hidden');
-            headerToShow.textContent = isSettings ? '🔽 Bedienfeld verbergen' : '🔽 Kalenderdaten verbergen';
-
-            if (!contentToHide.classList.contains('controls-content--hidden')) {
-                contentToHide.style.transition = 'none';
-                contentToHide.classList.add('controls-content--hidden');
-                void contentToHide.offsetHeight;
-                contentToHide.style.transition = '';
-                headerToHide.textContent = isSettings ? '▶️ Kalenderdaten anzeigen' : '▶️ Bedienfeld anzeigen';
+            // Check if animation needs stopping
+            if (panelName !== 'settings' && this.state.animationRunning) {
+                this.toggleAnimation(); // Stops the animation and changes the button text
             }
 
-            if (!isSettings) {
+            panelToToggle.content.classList.remove('controls-content--hidden');
+            panelToToggle.header.textContent = panelToToggle.textOpen;
+
+            // Hide all other panels
+            for (const name in panels) {
+                if (name !== panelName) {
+                    const otherPanel = panels[name];
+                    if (otherPanel.content && !otherPanel.content.classList.contains('controls-content--hidden')) {
+                        otherPanel.content.style.transition = 'none';
+                        otherPanel.content.classList.add('controls-content--hidden');
+                        void otherPanel.content.offsetHeight;
+                        otherPanel.content.style.transition = '';
+                        otherPanel.header.textContent = otherPanel.textClosed;
+                    }
+                }
+            }
+
+            // Update calendar info if calendar panel is opened
+            if (panelName === 'calendar') {
                 this.updateCalendarInfo();
             }
         } else {
-            contentToShow.classList.add('controls-content--hidden');
-            headerToShow.textContent = isSettings ? '▶️ Bedienfeld anzeigen' : '▶️ Kalenderdaten anzeigen';
+            // Close the panel
+            panelToToggle.content.classList.add('controls-content--hidden');
+            panelToToggle.header.textContent = panelToToggle.textClosed;
         }
 
+        // Update state for canvas rendering (only relevant for calendar)
         this.state.showCalendarDisk = !this.dom.calendarContent.classList.contains('controls-content--hidden');
 
         setTimeout(() => {
@@ -234,6 +273,11 @@ export class InputController {
     }
 
     showDayOfWeekLogic() {
+        // FIX 1.2: Stoppe die Animation, falls sie läuft.
+        if (this.state.animationRunning) {
+            this.toggleAnimation();
+        }
+
         // ANPASSUNG: Verwende das simDate aus dem state
         const simDate = this.state.simDate;
 
@@ -373,26 +417,42 @@ export class InputController {
         }
 
         this.dom.modalBody.innerHTML = html;
-        this.dom.dayOfWeekModal.style.display = 'flex'; // Modalfenster anzeigen
+        this.showModal(this.dom.dayOfWeekModal); // Modalfenster anzeigen
     }
 
 
-    showModal() {
-        const modal = this.dom.dayOfWeekModal;
-        if (!modal) return;
-        modal.style.display = 'flex';
-        modal.style.zIndex = '9999';
+    /**
+     * Zeigt ein beliebiges Modal-Element an.
+     * @param {HTMLElement} modalElement - Das DOM-Element des Modals.
+     */
+    showModal(modalElement) {
+        if (!modalElement) return;
+
+        // FIX 2: Zuerst anzeigen, dann scrollen (damit die Scroll-Eigenschaft aktiviert ist)
+        modalElement.style.display = 'flex';
+        modalElement.style.zIndex = '9999';
+
+        // Scrolle zum Anfang des Modals. Funktioniert nur zuverlässig, wenn das Element sichtbar ist.
+        modalElement.scrollTop = 0; // Versucht den Overlay-Container zu scrollen
+        const modalContent = modalElement.querySelector('.modal-content');
+        if (modalContent) {
+            modalContent.scrollTop = 0; // Versucht den inneren Content-Container zu scrollen
+        }
+
         // Prevent background scroll
         document.body.style.overflow = 'hidden';
         // Move focus into modal for accessibility
-        const focusable = modal.querySelector('button, [tabindex], a, input, textarea');
+        const focusable = modalElement.querySelector('button, [tabindex], a, input, textarea');
         if (focusable) focusable.focus();
     }
 
-    hideModal() {
-        const modal = this.dom.dayOfWeekModal;
-        if (!modal) return;
-        modal.style.display = 'none';
+    /**
+     * Verbirgt ein beliebiges Modal-Element.
+     * @param {HTMLElement} modalElement - Das DOM-Element des Modals.
+     */
+    hideModal(modalElement) {
+        if (!modalElement) return;
+        modalElement.style.display = 'none';
         document.body.style.overflow = '';
     }
 
@@ -453,6 +513,9 @@ export class InputController {
             if (!this.dom.calendarContent.classList.contains('controls-content--hidden')) {
                 controlsTotalHeight += this.dom.calendarContent.offsetHeight;
             }
+            // Höhe für den Info-Button berücksichtigen
+            if (this.dom.infoButtonHeader) controlsTotalHeight += this.dom.infoButtonHeader.offsetHeight;
+
 
             availableH = window.innerHeight - controlsTotalHeight - gap - margin * 2;
             availableH = Math.min(availableH, window.innerWidth * 0.9);
