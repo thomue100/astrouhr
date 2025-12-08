@@ -306,10 +306,10 @@ input[type="date-for-calc"] {
 
 .modal-content {
     background-color: #0e2030;
-    padding: 25px;
+    padding: 25px; /* Einheitliches Padding */
     border-radius: 10px;
     width: 90%;
-    max-width: 600px;
+    max-width: 600px; /* Einheitliche maximale Breite */
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
     animation: slideIn 0.3s ease-out;
     max-height: 90vh;
@@ -318,9 +318,16 @@ input[type="date-for-calc"] {
 
     .modal-content h3 {
         color: #ffcc33;
-        border-bottom: 2px solid #184a6b;
+        border-bottom: 2px solid #184a6b; /* Einheitliche Border */
         padding-bottom: 10px;
-        margin-top: 0;
+        margin-top: 0; /* Einheitlich: Keine obere Marge für Haupttitel */
+    }
+
+    /* NEU: Einheitliche Stile für H4 im Modal-Content */
+    .modal-content h4 {
+        color: #aaa; /* Graue Farbe, wie in der InfoModal-Vorlage */
+        margin-top: 15px;
+        margin-bottom: 10px;
     }
 
 .modal-step {

@@ -20,6 +20,9 @@ export class InputController {
         this.minDateLimit = minDateLimit;
         this.maxDateLimit = maxDateLimit;
 
+        // NEU: Overlay aus der HTML entfernen und in den Controller einfügen
+        this._createAndAppendInfoModal();
+
         // Mobile-Optimierung: Controls standardmäßig verstecken
         if (window.innerWidth < 850) {
             this.dom.controlsContent.classList.add('controls-content--hidden');
@@ -31,9 +34,112 @@ export class InputController {
         this._ensureModalHandlers();
     }
 
+    /**
+     * NEU: Erstellt das infoModal HTML und fügt es in den DOM ein.
+     * Aktualisiert anschließend die DOM-Referenzen im this.dom Objekt.
+     */
+    _createAndAppendInfoModal() {
+        const modalHtml = InputController._getInfoModalHtml();
+        // Das Modal am besten an den body anhängen, damit es ein echtes Overlay ist
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        // Referenzen im this.dom Objekt aktualisieren
+        this.dom.infoModal = document.getElementById('infoModal');
+        this.dom.infoModalCloseButton = document.getElementById('infoModalCloseButton');
+        this.dom.infoModalCloseX = document.getElementById('infoModalCloseX');
+    }
+
+    /**
+     * STATISCH: Liefert den HTML-String für das infoModal.
+     */
+    /**
+     * STATISCH: Liefert den HTML-String für das infoModal.
+     */
+    static _getInfoModalHtml() {
+        return `
+            <div id="infoModal" class="modal-overlay" style="display: none;">
+                <div class="modal-content">
+                    <span id="infoModalCloseX" class="modal-close">&times;</span>
+
+                    <h3 style="color:#ffcc33; font-size: 1.5em; margin-bottom: 20px;">Die Astronomische Uhr der Marienkirche 🧭</h3>
+                    
+                    <hr style="border-top: 1px solid #1a4261;"/>
+                    
+                    <div class="modal-step">
+                        <strong style="color: #ffcc33; font-size: 1.2em;">Simulation & Funktionen</strong>
+                        <p style="font-size: 0.9em; margin-top: 5px;">
+                            Willkommen zur Simulation der monumentalen astronomischen Uhr in der Marienkirche zu Lübeck, wie sie **1976 fertiggestellt** wurde und die mittelalterliche Tradition repräsentativer Kunstuhren fortführt.
+                        </p>
+                        <p style="font-size: 0.9em; margin-bottom: 0;">
+                            Diese Uhr erfüllt traditionell eine fünffache Funktion:
+                        </p>
+                        <ul style="font-size: 0.9em; margin-top: 5px; padding-left: 20px;">
+                            <li style="color: white;">Sie zeigt die Uhrzeit an (durch den Sonnenzeiger).</li>
+                            <li style="color: white;">Sie liefert astronomische Daten, insbesondere die Örter von Sonne und Mond in den Tierkreiszeichen und die Mondphase.</li>
+                            <li style="color: white;">Sie stellt kalendarische Daten bereit, die für die Ermittlung der Feste im Kirchenjahr wichtig sind.</li>
+                        </ul>
+                    </div>
+                    
+                    <hr style="border-top: 1px solid #1a4261; margin-top: 20px; margin-bottom: 20px;" />
+
+                    <div class="modal-step">
+                        <strong style="color: #ffcc33; font-size: 1.2em;">So funktioniert die Simulation:</strong>
+                        <ul style="font-size: 0.9em; margin-top: 5px; padding-left: 20px;">
+                            <li style="color: white;">
+                                <span style="color: #ffcc33;">**Uhrscheibe (Astrolabium):**</span> Beobachten Sie, wie sich der **Sonnenzeiger** (zeigt die Uhrzeit) und der **Mondzeiger** im Verhältnis zur umlaufenden Scheibe der 13 **Tierkreissternbilder** bewegen. Die Tierkreisscheibe dreht sich mit hoher Genauigkeit in siderischer Zeit (23 h 56 min 4,1 s).
+                            </li>
+                            <li style="color: white;">
+                                <span style="color: #ffcc33;">**Kalenderscheibe:**</span> Hier finden Sie 8 beschriftete Ringe, welche die kalendarischen Daten (wie Tagesbuchstaben, Osterdaten, Goldene Zahl) anzeigen. Typisch für die Lübecker Uhr sind die Angaben zu den **Sonnen- und Mondfinsternissen**.
+                            </li>
+                            <li style="color: white;">
+                                <span style="color: #ffcc33;">**Steuerung:**</span> Nutzen Sie die Bedienelemente, um die Geschwindigkeit der Animation anzupassen oder ein spezifisches Datum einzugeben, um die **tatsächlichen astronomischen Örter** von Sonne und Mond am Sternenhimmel zu studieren.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <hr style="border-top: 1px solid #1a4261; margin-top: 20px; margin-bottom: 20px;" />
+
+                    <h3 style="color:#ffcc33; font-size: 1.5em; margin-bottom: 20px;">Die Geschichte der Uhr 📜</h3>
+                    
+                    <hr style="border-top: 1px solid #1a4261;"/>
+
+                    <div class="modal-step">
+                        <strong style="color: #ffcc33; font-size: 1.2em;">Die Alte Uhr (Geweiht 1405)</strong>
+                        <p style="font-size: 0.9em; margin-top: 5px;">
+                            Die Tradition dieser monumentalen Kunstuhr begann 1405. Im Jahr 1561 wurde eine umfassende Erweiterung und Erneuerung der Uhrwerke vorgenommen. Die alte Uhr zeigte zusätzlich die Bewegungen der fünf klassischen **Planeten** und besaß Angaben zu **Finsternissen** – ein einzigartiges Merkmal. Im Figurenumgang prozessierten der **Kaiser und die sieben Kurfürsten** vor Christus.
+                        </p>
+                        <p style="font-size: 0.9em; margin-bottom: 0;">
+                            Die alte Uhr wurde am **29. März 1942** zusammen mit der Marienkirche bei einem Brand zerstört.
+                        </p>
+                    </div>
+
+                    <hr style="border-top: 1px solid #1a4261; margin-top: 20px; margin-bottom: 20px;" />
+
+                    <div class="modal-step">
+                        <strong style="color: #ffcc33; font-size: 1.2em;">Die Neue Uhr (1955–1976)</strong>
+                        <p style="font-size: 0.9em; margin-top: 5px;">
+                            Nach der Zerstörung begann der Lübecker Uhrmachermeister **Paul Behrens** 1955 mit der Planung und Neugestaltung. Die neue Uhr ist der alten verpflichtet, aber modernisiert.
+                        </p>
+                        <p style="font-size: 0.9em;">
+                            **Wichtigste Unterschiede zur Vorgängerin:**
+                        </p>
+                        <ul style="font-size: 0.9em; margin-top: 5px; padding-left: 20px;">
+                            <li style="color: white;">Sie zeigt die **tatsächlichen astronomischen Örter** von Sonne und Mond am Sternenhimmel an.</li>
+                            <li style="color: white;">Der Figurenumgang zeigt jetzt **acht Figuren verschiedener Hautfarbe und Stände** (z.B. schwarzer Missionar, weißer Arzt, Japanerin, Indianer) anstelle des Kaisers und der Kurfürsten.</li>
+                            <li style="color: white;">Der Tierkreisring stellt **13 Sternbilder** (inkl. Schlangenträger) dar, um die tatsächlichen Gegebenheiten genauer abzubilden.</li>
+                        </ul>
+                    </div>
+                    
+                    <button id="infoModalCloseButton" style="margin-top: 20px;">Schließen</button>
+                </div>
+            </div>
+        `;
+    }
+
     _ensureModalHandlers() {
+        // Durch _createAndAppendInfoModal() sind die DOM-Referenzen jetzt verfügbar
         const dOWModal = this.dom.dayOfWeekModal;
-        const infoModal = this.dom.infoModal;
+        const infoModal = this.dom.infoModal; // NEUE REFERENZ
 
         if (dOWModal) {
             dOWModal.style.zIndex = dOWModal.style.zIndex || '9999';
@@ -177,9 +283,13 @@ export class InputController {
         // Update state for canvas rendering (only relevant for calendar)
         this.state.showCalendarDisk = !this.dom.calendarContent.classList.contains('controls-content--hidden');
 
+        // Die Größenänderung erfolgt verzögert, um die CSS-Animation abzuwarten (450ms)
         setTimeout(() => {
             this.resizeCanvas();
             this.renderer.drawClock(this.state);
+
+            // FIX GEGEN DAS SPRINGEN: Setze die Scroll-Position nach der Größenanpassung zurück
+            window.scrollTo(0, 0);
         }, 450);
     }
 
@@ -421,30 +531,28 @@ export class InputController {
     }
 
 
-    /**
-     * Zeigt ein beliebiges Modal-Element an.
-     * @param {HTMLElement} modalElement - Das DOM-Element des Modals.
-     */
     showModal(modalElement) {
         if (!modalElement) return;
 
-        // FIX 2: Zuerst anzeigen, dann scrollen (damit die Scroll-Eigenschaft aktiviert ist)
         modalElement.style.display = 'flex';
         modalElement.style.zIndex = '9999';
 
-        // Scrolle zum Anfang des Modals. Funktioniert nur zuverlässig, wenn das Element sichtbar ist.
-        modalElement.scrollTop = 0; // Versucht den Overlay-Container zu scrollen
-        const modalContent = modalElement.querySelector('.modal-content');
-        if (modalContent) {
-            modalContent.scrollTop = 0; // Versucht den inneren Content-Container zu scrollen
-        }
+        // nach dem Rendern scrollen
+        requestAnimationFrame(() => {
+            const modalContent = modalElement.querySelector('.modal-content');
+            if (modalContent) {
+                modalContent.scrollTop = 0;
+                // alternativ:
+                // modalContent.scrollTo({ top: 0 });
+            }
+        });
 
-        // Prevent background scroll
         document.body.style.overflow = 'hidden';
-        // Move focus into modal for accessibility
+
         const focusable = modalElement.querySelector('button, [tabindex], a, input, textarea');
         if (focusable) focusable.focus();
     }
+
 
     /**
      * Verbirgt ein beliebiges Modal-Element.
