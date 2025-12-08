@@ -47,6 +47,15 @@
           box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
 
+        /* App-Titel oberhalb der Controls — nur Schriftgelb, keine Layoutänderung */
+        .app-title {
+          margin: 8px 14px 0 14px;
+          color: #ffcc33;
+          font-size: 1rem;
+          font-weight: bold;
+          line-height: 1.2;
+        }
+
         .controls-header {
           padding: 10px 14px;
           background-color: #123b57;

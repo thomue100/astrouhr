@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8" />
-    <title>Astronomische Uhr Lübeck</title>
+    <title>Astro‑Uhr St. Marien zu Lübeck</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
@@ -10,6 +10,7 @@
 <body>
     <div class="container">
         <div class="controls" id="controls">
+            <h2 class="app-title">Astro‑Uhr St. Marien zu Lübeck</h2>
             <div class="controls-header" id="controlsHeader">
                 🔽 Einstellungen verbergen
             </div>
@@ -75,6 +76,7 @@
 
 
         // GLOBALE KONSTANTEN: Hartkodierte "Lübecker" Grenzwerte für die JS-Prüfung
+        // Das sind die Grenzwerte der Kalenderscheibe.
         const MIN_DATE_LIMIT = new Date('1911-01-01T00:00:00');
         const MAX_DATE_LIMIT = new Date('2080-12-31T23:59:59');
 
