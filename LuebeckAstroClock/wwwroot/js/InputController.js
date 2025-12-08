@@ -1,4 +1,4 @@
-﻿// Ausgelagerter InputController
+// Ausgelagerter InputController
 import {
     TimeUtility
 } from '/js/TimeUtility.js';
@@ -23,7 +23,7 @@ export class InputController {
         // Mobile-Optimierung: Controls standardmäßig verstecken
         if (window.innerWidth < 850) {
             this.dom.controlsContent.classList.add('controls-content--hidden');
-            this.dom.controlsHeader.textContent = '▶️ Einstellungen anzeigen';
+            this.dom.controlsHeader.textContent = '▶️ Bedienfeld anzeigen';
             this.dom.calendarContent.classList.add('controls-content--hidden');
         }
 
@@ -109,15 +109,23 @@ export class InputController {
         const isCurrentlyHidden = contentToShow.classList.contains('controls-content--hidden');
 
         if (isCurrentlyHidden) {
+
+            // NEUER CODE HIER
+            // Wenn das Kalender-Panel geöffnet wird UND die Animation läuft, stoppe die Animation.
+            if (!isSettings && this.state.animationRunning) {
+                this.toggleAnimation(); // Stoppt die Animation und ändert den Button-Text auf '▶️ Animation starten'
+            }
+            // ENDE NEUER CODE
+
             contentToShow.classList.remove('controls-content--hidden');
-            headerToShow.textContent = isSettings ? '🔽 Einstellungen verbergen' : '🔽 Kalenderdaten verbergen';
+            headerToShow.textContent = isSettings ? '🔽 Bedienfeld verbergen' : '🔽 Kalenderdaten verbergen';
 
             if (!contentToHide.classList.contains('controls-content--hidden')) {
                 contentToHide.style.transition = 'none';
                 contentToHide.classList.add('controls-content--hidden');
                 void contentToHide.offsetHeight;
                 contentToHide.style.transition = '';
-                headerToHide.textContent = isSettings ? '▶️ Kalenderdaten anzeigen' : '▶️ Einstellungen anzeigen';
+                headerToHide.textContent = isSettings ? '▶️ Kalenderdaten anzeigen' : '▶️ Bedienfeld anzeigen';
             }
 
             if (!isSettings) {
@@ -125,7 +133,7 @@ export class InputController {
             }
         } else {
             contentToShow.classList.add('controls-content--hidden');
-            headerToShow.textContent = isSettings ? '▶️ Einstellungen anzeigen' : '▶️ Kalenderdaten anzeigen';
+            headerToShow.textContent = isSettings ? '▶️ Bedienfeld anzeigen' : '▶️ Kalenderdaten anzeigen';
         }
 
         this.state.showCalendarDisk = !this.dom.calendarContent.classList.contains('controls-content--hidden');
@@ -216,7 +224,7 @@ export class InputController {
         if (eclipseList.length > 0) {
             eclipseList.forEach(e => {
                 eclipseHtml += `<span style="color: #ffcc33;">• Datum:</span> <span style="color: white;">${e.date}</span><br>
-                                <span style="color: #ffcc33;">  Typ:</span> <span style="color: white;">${e.type}</span><br><br>`;
+                                 <span style="color: #ffcc33;">  Typ:</span> <span style="color: white;">${e.type}</span><br><br>`;
             });
         } else {
             eclipseHtml += `<span style="color: white;">Keine Finsternisdaten für ${year} vorhanden.</span>`;
@@ -320,7 +328,7 @@ export class InputController {
 
             // Das Beispiel mit dem aktuellen Datum durchrechnen
             html += `<div class="modal-step">
-                                <strong>Schritt 1: Sonntagsbuchstaben (SB) bestimmen und Regel anwenden 🗓️</strong>
+                                <strong style="color: #ffcc33;">Schritt 1: Sonntagsbuchstaben (SB) bestimmen und Regel anwenden 🗓️</strong>
                                 <p>
                                     Die Jahreszahl **${year}** hat die(den) Sonntagsbuchstaben: **${sundayLetterRaw}**.
                                     <br>
@@ -352,13 +360,13 @@ export class InputController {
             countHtml += '</p>';
 
             html += `<div class="modal-step">
-                                <strong>Schritt 2: Vom SB zum TB zählen 🧭</strong>
+                                <strong style="color: #ffcc33;">Schritt 2: Vom SB zum TB zählen 🧭</strong>
                                 <p>Man startet die Zählung beim **gültigen Sonntagsbuchstaben (${usedSundayLetter})** und zählt, bis man den **Tagesbuchstaben (${dailyLetter})** des aktuellen Datums erreicht. Der erste Buchstabe (${usedSundayLetter}) ist immer der **Sonntag**.</p>
                                 ${countHtml}
                             </div>`;
 
             html += `<div class="modal-step">
-                                <strong>Schritt 3: Das Ergebnis ablesen 🎉</strong>
+                                <strong style="color: #ffcc33;">Schritt 3: Das Ergebnis ablesen 🎉</strong>
                                 <p>Der Wochentag ergibt sich aus der Position, die man beim Zählen erreicht hat (Position 0 = Sonntag, Position 6 = Samstag).</p>
                                 <p class="result" style="font-size: 1.2em; font-weight: bold; color: #15e963; margin-top: 15px;">Der **${dateStr}** ist ein **${dayOfWeekActual}**!</p>
                             </div>`;

@@ -1,355 +1,380 @@
-        /* ==================================== */
-        /* === 1. Grundstruktur (HTML/Body) === */
-        /* ==================================== */
-        html, body {
-          margin: 0;
-          padding: 0;
-          height: 100%;
-          overflow: hidden;
-          font-family: 'Segoe UI', Roboto, sans-serif;
-          color: #f4f4f4;
-          font-size: 14px;
-          background-color: #071522; /* Dunkelblau/Schwarz für den Weltraum-Look */
-        }
+/* ==================================== */
+/* === 1. Grundstruktur (HTML/Body) === */
+/* ==================================== */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    color: #f4f4f4;
+    font-size: 14px;
+    background-color: #071522; /* Dunkelblau/Schwarz für den Weltraum-Look */
+}
 
-        body {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-        }
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-        /* ================= */
-        /* === 2. Container === */
-        /* ================= */
-        .container {
-          display: flex;
-          align-items: flex-start;
-          gap: 30px;
-          padding: 20px;
-          background: rgba(10, 28, 40, 0.85); /* Halbdurchsichtiger, dunkler Hintergrund */
-          border-radius: 16px;
-          backdrop-filter: blur(4px);
-          box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
-        }
+/* ================= */
+/* === 2. Container === */
+/* ================= */
+.container {
+    display: flex;
+    align-items: flex-start;
+    gap: 30px;
+    padding: 20px;
+    background: rgba(10, 28, 40, 0.85); /* Halbdurchsichtiger, dunkler Hintergrund */
+    border-radius: 16px;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+}
 
-        /* ==================================== */
-        /* === 3. Controls (Sidebar/Einstellungen) === */
-        /* ==================================== */
-        .controls {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          width: 250px;
-          padding: 0;
-          background-color: #0e2030;
-          border-radius: 8px;
-          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
+/* ==================================== */
+/* === 3. Controls (Sidebar/Einstellungen) === */
+/* ==================================== */
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 250px;
+    padding: 0;
+    background-color: #0e2030;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    /* Alle Schriften in den Controls gelb machen */
+    color: #ffcc33;
+}
 
-        /* App-Titel oberhalb der Controls — nur Schriftgelb, keine Layoutänderung */
-        .app-title {
-          margin: 8px 14px 0 14px;
-          color: #ffcc33;
-          font-size: 1rem;
-          font-weight: bold;
-          line-height: 1.2;
-        }
+/* App-Titel oberhalb der Controls */
+.app-title {
+    margin: 8px 14px 0 14px;
+    color: #ffcc33;
+    /* Vergrößern und als Header hervorheben */
+    font-size: 1.3rem;
+    font-weight: bold;
+    line-height: 1.2;
+}
 
-        .controls-header {
-          padding: 10px 14px;
-          background-color: #123b57;
-          color: #ffcc33; /* Gold/Gelb */
-          font-weight: bold;
-          cursor: pointer;
-          /* Anpassung für den Multi-Header-Block */
-          border-radius: 8px 8px 0 0; 
-          text-align: center;
-          margin-top: 0;
-        }
-        
-        /* Korrektur für den letzten Header, der die untere Rundung haben soll */
-        .controls > #calendarPanel .controls-header {
-            border-radius: 0;
-        }
+.controls-header {
+    padding: 10px 14px;
+    background-color: #123b57;
+    color: #ffcc33; /* Gold/Gelb */
+    font-weight: bold;
+    cursor: pointer;
+    /* Anpassung für den Multi-Header-Block */
+    border-radius: 8px 8px 0 0;
+    text-align: center;
+    margin-top: 0;
+}
 
-        .controls-content {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          padding: 14px;
-          transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
-          overflow: hidden;
-          max-height: 1000px; /* Groß genug für Übergang */
-          border-bottom: 1px solid #1a4261; /* Trennlinie */
-          position: relative; 
-        }
-        
-        /* Entfernen der Trennlinie beim letzten Element */
-        .controls > #calendarPanel .controls-content {
-            border-bottom: none;
-            border-radius: 0 0 8px 8px;
-        }
+/* Korrektur für den letzten Header, der die untere Rundung haben soll */
+.controls > #calendarPanel .controls-header {
+    border-radius: 0;
+}
+
+.controls-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+    transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+    overflow: hidden;
+    max-height: 1000px; /* Groß genug für Übergang */
+    border-bottom: 1px solid #1a4261; /* Trennlinie */
+    position: relative;
+}
+
+/* Entfernen der Trennlinie beim letzten Element */
+.controls > #calendarPanel .controls-content {
+    border-bottom: none;
+    border-radius: 0 0 8px 8px;
+}
 
 
-        .controls-content--hidden {
-          max-height: 0;
-          padding-top: 0;
-          padding-bottom: 0;
-          opacity: 0;
-        }
+.controls-content--hidden {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+}
 
-        .secondary-controls {
-          border-top: 1px solid #1a4261;
-          padding-top: 12px;
-          margin-top: 8px;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
+.secondary-controls {
+    border-top: 1px solid #1a4261;
+    padding-top: 12px;
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
 
-        /* === Datumsanzeige === */
-        .date-display {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-          margin-bottom: 10px;
-        }
+/* === Datumsanzeige === */
+.date-display {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+}
 
-        .date-display input[type="date"],
-        .date-display #liveDateTime {
-          font-size: 16px;
-          font-weight: bold;
-          text-align: center;
-        }
+    .date-display input[type="date"],
+    .date-display #liveDateTime {
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+    }
 
-        #liveDateTime {
-          background: rgba(255, 255, 255, 0.05);
-          padding: 6px 10px;
-          border-radius: 6px;
-          font-size: 13px;
-          color: #ffdf80;
-        }
+#liveDateTime {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    /* NEU: Schriftfarbe explizit auf Weiß setzen */
+    color: #fff;
+}
 
-        /* === Zähler/Status (nicht genutzt im HTML, aber definiert) */
-        .counter {
-          background: rgba(255, 255, 255, 0.05);
-          padding: 6px 10px;
-          border-radius: 6px;
-          font-size: 13px;
-          color: #ffdf80;
-        }
+/* === Zähler/Status (nicht genutzt im HTML, aber definiert) */
+.counter {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+}
 
-        /* Regel zur Behebung des Springen-Problems bei vielen Finsternissen */
-        #eclipseInfo {
-            /* Setzt eine maximale Höhe, z.B. genug Platz für 3-4 Einträge */
-            max-height: 150px;
-            /* Fügt einen vertik. Scrollbalken hinzu, wenn der Inhalt die max-height überschreitet */
-            overflow-y: auto;
-            /* Fügt etwas Polsterung hinzu, damit der Text nicht direkt am rechten Rand des Scrollbereichs liegt */
-            padding-right: 8px;
-        }
+/* Regel zur Behebung des Springen-Problems bei vielen Finsternissen */
+#eclipseInfo {
+    /* Setzt eine maximale Höhe, z.B. genug Platz für 3-4 Einträge */
+    max-height: 150px;
+    /* Fügt einen vertik. Scrollbalken hinzu, wenn der Inhalt die max-height überschreitet */
+    overflow-y: auto;
+    /* Fügt etwas Polsterung hinzu, damit der Text nicht direkt am rechten Rand des Scrollbereichs liegt */
+    padding-right: 8px;
+    /* WICHTIG: Die Finsternis-Listenpunkte sollen grau bleiben */
+    color: #aaa;
+}
+    /* WICHTIG: Der H3 in #eclipseInfo soll wieder gelb sein */
+    #eclipseInfo h3 {
+        color: #ffcc33;
+    }
 
-        /* ======================== */
-        /* === 4. Inputs und Buttons === */
-        /* ======================== */
-        button {
-          background-color: #184a6b;
-          color: #fff;
-          border: 1px solid #00aaff;
-          border-radius: 6px;
-          padding: 8px 12px;
-          cursor: pointer;
-          font-size: 14px;
-          font-weight: 600;
-          transition: background-color 0.3s;
-          width: 100%; 
-        }
 
-        button:hover {
-          background-color: #0066aa;
-        }
+/* ======================== */
+/* === 4. Inputs und Buttons === */
+/* ======================== */
+button {
+    background-color: #184a6b;
+    /* Button-Text explizit auf Gelb setzen */
+    color: #ffcc33;
+    border: 1px solid #00aaff;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+    width: 100%;
+}
 
-        input, select {
-          background-color: #12283b;
-          color: #f0f0f0;
-          border: 1px solid #00aaff;
-          border-radius: 4px;
-          padding: 4px 8px;
-          font-size: 14px;
-          transition: border-color 0.3s;
-          width: 100%; 
-          box-sizing: border-box; 
-        }
+    button:hover {
+        background-color: #0066aa;
+    }
 
-        input:focus, select:focus {
-          border-color: #ffcc33;
-          outline: none;
-        }
+input, select {
+    background-color: #12283b;
+    /* Schriftfarbe der Inputs und Selects wieder hellgrau machen, da sie lesbarer sind */
+    color: #f0f0f0;
+    border: 1px solid #00aaff;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+    width: 100%;
+    box-sizing: border-box;
+}
 
-        .controls-content label {
-          display: block; 
-          width: 100%; 
-          margin-bottom: 4px; 
-        }
+    input:focus, select:focus {
+        border-color: #ffcc33;
+        outline: none;
+    }
 
-        /* === Range Slider Styling === */
-        input[type="range"] {
-          -webkit-appearance: none;
-          width: 100%;
-          height: 8px;
-          background: #123b57;
-          border-radius: 4px;
-          margin-top: 5px;
-        }
+.controls-content label {
+    display: block;
+    width: 100%;
+    margin-bottom: 4px;
+}
 
-        input[type="range"]::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 16px;
-          height: 16px;
-          background: #ffcc33;
-          border-radius: 50%;
-          cursor: pointer;
-          margin-top: -4px; 
-        }
+/* === Range Slider Styling === */
+input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    background: #123b57;
+    border-radius: 4px;
+    margin-top: 5px;
+}
 
-        input[type="range"]::-webkit-slider-runnable-track {
-          width: 100%;
-          height: 8px;
-          background: #123b57; 
-          border-radius: 4px;
-        }
+    input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        background: #ffcc33;
+        border-radius: 50%;
+        cursor: pointer;
+        margin-top: -4px;
+    }
 
-        input[type="range"]::-moz-range-track {
-          width: 100%;
-          height: 8px;
-          background: #123b57; 
-          border-radius: 4px;
-        }
-        
-        /* === Input Type Number (für Kalenderjahr) === */
-        /* Angepasst, um es von den normalen Inputs zu unterscheiden, aber jetzt für das Datum */
-        input[type="date-for-calc"] {
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-        }
+    input[type="range"]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 8px;
+        background: #123b57;
+        border-radius: 4px;
+    }
 
-        /* ================= */
-        /* === 5. Canvas === */
-        /* ================= */
-        #canvas {
-          border: 4px solid #00aaff;
-          border-radius: 12px;
-          background-color: #0a1c28;
-        }
+    input[type="range"]::-moz-range-track {
+        width: 100%;
+        height: 8px;
+        background: #123b57;
+        border-radius: 4px;
+    }
 
-        /* ============================== */
-        /* === 6. Mobile Optimierung === */
-        /* ============================== */
-        @media (max-width: 850px) {
-          .container {
-            flex-direction: column;
-            align-items: center;
-            padding: 10px;
-            width: 95%;
-            height: 95vh;
-            overflow-y: auto; 
-            box-sizing: border-box;
-          }
-          
-          .controls {
-            width: 100%;
-            order: 2; /* Controls unten */
-          }
-          
-          #canvas {
-            order: 1; /* Canvas oben */
-            max-width: 100%;
-            margin-bottom: 20px;
-          }
+/* === Input Type Number (für Kalenderjahr) === */
+/* Angepasst, um es von den normalen Inputs zu unterscheiden, aber jetzt für das Datum */
+input[type="date-for-calc"] {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+}
 
-          body {
-            align-items: flex-start;
-          }
-        }
-        
-        /* ============================== */
-        /* === 7. MODAL-STYLING       === */
-        /* ============================== */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            animation: fadeIn 0.3s ease-out;
-        }
+/* ================= */
+/* === 5. Canvas === */
+/* ================= */
+#canvas {
+    border: 4px solid #00aaff;
+    border-radius: 12px;
+    background-color: #0a1c28;
+}
 
-        .modal-content {
-            background-color: #0e2030;
-            padding: 25px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            animation: slideIn 0.3s ease-out;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .modal-content h3 {
-            color: #ffcc33;
-            border-bottom: 2px solid #184a6b;
-            padding-bottom: 10px;
-            margin-top: 0;
-        }
-        
-        .modal-step {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-left: 4px solid #00aaff;
-            background-color: #1a4261;
-        }
-        
-        .modal-step strong {
-            color: #fff;
-            display: block;
-            margin-bottom: 5px;
-        }
-        
-        .modal-step .result {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #77dd77;
-            margin-top: 10px;
-        }
-        
-        .modal-close {
-            float: right;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #aaa;
-            transition: color 0.2s;
-        }
+/* ============================== */
+/* === 6. Mobile Optimierung === */
+/* ============================== */
+@media (max-width: 850px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        width: 95%;
+        height: 95vh;
+        overflow-y: auto;
+        box-sizing: border-box;
+    }
 
-        .modal-close:hover {
-            color: #fff;
-        }
-        
-        /* Animationen */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes slideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+    .controls {
+        width: 100%;
+        order: 2; /* Controls unten */
+    }
+
+    #canvas {
+        order: 1; /* Canvas oben */
+        max-width: 100%;
+        margin-bottom: 20px;
+    }
+
+    body {
+        align-items: flex-start;
+    }
+}
+
+/* ============================== */
+/* === 7. MODAL-STYLING       === */
+/* ============================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+    background-color: #0e2030;
+    padding: 25px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    animation: slideIn 0.3s ease-out;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+    .modal-content h3 {
+        color: #ffcc33;
+        border-bottom: 2px solid #184a6b;
+        padding-bottom: 10px;
+        margin-top: 0;
+    }
+
+.modal-step {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-left: 4px solid #00aaff;
+    background-color: #1a4261;
+}
+
+    .modal-step strong {
+        color: #fff;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .modal-step .result {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #77dd77;
+        margin-top: 10px;
+    }
+
+.modal-close {
+    float: right;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #aaa;
+    transition: color 0.2s;
+}
+
+    .modal-close:hover {
+        color: #fff;
+    }
+
+/* Animationen */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
