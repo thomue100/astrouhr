@@ -339,7 +339,7 @@ export class InputController {
                 <span style="color: white; font-weight: normal;">${yearInfo.dayLetter}</span><br>
                 <strong style="color: #ffcc33; font-weight: normal;">Tagesbuchstabe:</strong>
                 <span style="color: white; font-weight: normal;">${dailyInfo.letter}</span><br>
-                <strong style="color: #ffcc33; font-weight: normal;">Tagesheiliger:</strong>
+                <strong style="color: #ffcc33; font-weight: normal;">Tagesheilige(r):</strong>
                 <span style="color: white; font-weight: normal;">${dailyInfo.saint}</span>
             `;
         } else if (!yearInfo) {
@@ -348,7 +348,7 @@ export class InputController {
                 <span style="color: white; font-weight: normal;">${dayOfWeek}</span><br>
                 <strong style="color: #ffcc33; font-weight: normal;">Tagesbuchstabe:</strong>
                 <span style="color: white; font-weight: normal;">${dailyInfo?.letter ?? '--'}</span><br>
-                <strong style="color: #ffcc33; font-weight: normal;">Tagesheiliger:</strong>
+                <strong style="color: #ffcc33; font-weight: normal;">Tagesheilige(r):</strong>
                 <span style="color: white; font-weight: normal;">${dailyInfo?.saint ?? '--'}</span><br>
                 <strong style="color: #ff5555; font-weight: normal;">Fehlendes Jahr.</strong>
                 Jahresdaten für ${year} nicht in der statischen Tabelle hinterlegt.
