@@ -13,31 +13,33 @@
             <h2 class="app-title">Astronomische Uhr - St. Marien zu Lübeck</h2>
 
             <div class="controls-header" id="infoButtonHeader" style="cursor: pointer;">
-                ▶️ Einführung & Geschichte anzeigen
+                ▶️ Einführung
             </div>
-            <div class="controls-header" id="controlsHeader">
-                🔽 Bedienfeld verbergen
-            </div>
-            <div class="controls-content" id="controlsContent">
-                <label for="dateTimeInput">Wähle Datum und Uhrzeit und starte die Animation:</label>
-                <input type="datetime-local"
-                       id="dateTimeInput"
-                       min="1911-01-01T00:00"
-                       max="2080-12-31T23:59" />
-                <div id="liveDateTime">--:----</div>
-                <button id="btnReset">Aktuelle Zeit</button>
-                <label>
-                    Geschwindigkeit:
-                    <input type="range" id="speedSlider" min="0.1" max="5" step="0.1" value="0.5" />
-                </label>
-                <button id="toggleButton">▶️ Animation starten</button>
+            <div id="simulationPanel">
+                <div class="controls-header" id="controlsHeader">
+                    🔽 Simulation
+                </div>
+                <div class="controls-content" id="controlsContent">
+                    <label for="dateTimeInput">Wähle Datum und Uhrzeit und starte die Animation:</label>
+                    <input type="datetime-local"
+                           id="dateTimeInput"
+                           min="1911-01-01T00:00"
+                           max="2080-12-31T23:59" />
+                    <div id="liveDateTime">--:----</div>
+                    <button id="btnReset">Aktuelle Zeit</button>
+                    <label>
+                        Geschwindigkeit:
+                        <input type="range" id="speedSlider" min="0.1" max="5" step="0.1" value="0.5" />
+                    </label>
+                    <button id="toggleButton">▶️ Animation starten</button>
+                </div>
             </div>
             <div id="calendarPanel">
                 <div class="controls-header" id="calendarHeader">
-                    ▶️ Kalenderdaten anzeigen
+                    ▶️ Kalender
                 </div>
                 <div class="controls-content controls-content--hidden" id="calendarContent">
-                    <div id="calendarInfoDisplay" style="margin-bottom: 12px; padding: 8px; border-radius: 6px; background-color: #0e3048; line-height: 1.5;">
+                    <div id="calendarInfoDisplay">
                         **Osterdatum 2025:** --
                         <br>
                         **Goldene Zahl:** --
@@ -47,12 +49,23 @@
                         **Tagesheiliger:** --
                     </div>
                     <button id="btnShowDayOfWeekLogic">Erläuterungen</button>
-                    <div id="eclipseInfo" style="margin-top: 10px; border-top: 1px solid #1a4261; padding-top: 12px; color: #aaa;">
+                    <div id="eclipseInfo">
                         <h3>Finsternisse</h3>
                         <ul style="list-style-type: none; padding-left: 0; margin-top: 5px; font-size: 13px;">
                             <li>Daten werden geladen...</li>
                         </ul>
                     </div>
+                </div>
+            </div>
+            <div id="historyPanel">
+                <div class="controls-header" id="historyHeader">
+                    ▶️ Kunst & Geschichte
+                </div>
+                <div class="controls-content controls-content--hidden" id="historyContent">
+                    <p style="color: #aaa;">
+                        Hier werden in Zukunft Informationen zur Geschichte der Uhr und ihrer kunsthistorischen Bedeutung angezeigt.
+                    </p>
+                    <button id="btnShowHistoryDetails">Mehr erfahren</button>
                 </div>
             </div>
         </div>
@@ -96,15 +109,18 @@
             liveDateTime: document.getElementById('liveDateTime'),
             btnReset: document.getElementById('btnReset'),
             controls: document.getElementById('controls'),
+            // SIMULATION-ELEMENTE
             controlsHeader: document.getElementById('controlsHeader'),
             controlsContent: document.getElementById('controlsContent'),
-            secondaryControls: document.getElementById('secondaryControls'),
             // KALENDER-ELEMENTE
             calendarHeader: document.getElementById('calendarHeader'),
             calendarContent: document.getElementById('calendarContent'),
             calendarInfoDisplay: document.getElementById('calendarInfoDisplay'),
             btnShowDayOfWeekLogic: document.getElementById('btnShowDayOfWeekLogic'),
             eclipseInfo: document.getElementById('eclipseInfo'),
+            // NEUE GESCHICHTS-ELEMENTE
+            historyHeader: document.getElementById('historyHeader'),
+            historyContent: document.getElementById('historyContent'),
             // INFO-ELEMENTE (WERDEN SPÄTER ERSTELLT UND IM CONTROLLER GESETZT)
             infoButtonHeader: document.getElementById('infoButtonHeader'), // Trigger
             infoModal: null,

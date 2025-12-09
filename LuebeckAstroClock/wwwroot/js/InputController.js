@@ -26,7 +26,7 @@ export class InputController {
         // Mobile-Optimierung: Controls standardmäßig verstecken
         if (window.innerWidth < 850) {
             this.dom.controlsContent.classList.add('controls-content--hidden');
-            this.dom.controlsHeader.textContent = '▶️ Bedienfeld anzeigen';
+            this.dom.controlsHeader.textContent = '▶️ Simulation';
             this.dom.calendarContent.classList.add('controls-content--hidden');
         }
 
@@ -229,14 +229,14 @@ export class InputController {
             'settings': {
                 content: this.dom.controlsContent,
                 header: this.dom.controlsHeader,
-                textOpen: '🔽 Bedienfeld verbergen',
-                textClosed: '▶️ Bedienfeld anzeigen'
+                textOpen: '🔽 Simulation',
+                textClosed: '▶️ Simulation'
             },
             'calendar': {
                 content: this.dom.calendarContent,
                 header: this.dom.calendarHeader,
-                textOpen: '🔽 Kalenderdaten verbergen',
-                textClosed: '▶️ Kalenderdaten anzeigen'
+                textOpen: '🔽 Kalender',
+                textClosed: '▶️ Kalender'
             }
         };
 
@@ -329,54 +329,54 @@ export class InputController {
 
         if (yearInfo && dailyInfo) {
             this.dom.calendarInfoDisplay.innerHTML = `
-                <strong style="color: #ffcc33;">Wochentag für ${calcDate.toLocaleDateString('de-DE')}:</strong>
-                <span style="color: white;">${dayOfWeek}</span><br>
-                <strong style="color: #ffcc33;">Osterdatum ${year}:</strong>
-                <span style="color: white;">${yearInfo.easterDate}</span><br>
-                <strong style="color: #ffcc33;">Goldene Zahl:</strong>
-                <span style="color: white;">${yearInfo.goldenNumber}</span><br>
-                <strong style="color: #ffcc33;">Sonntagsbuchstabe:</strong>
-                <span style="color: white;">${yearInfo.dayLetter}</span><br>
-                <strong style="color: #ffcc33;">Tagesbuchstabe:</strong>
-                <span style="color: white;">${dailyInfo.letter}</span><br>
-                <strong style="color: #ffcc33;">Tagesheiliger:</strong>
-                <span style="color: white;">${dailyInfo.saint}</span>
+                <strong style="color: #ffcc33; font-weight: normal;">Wochentag für ${calcDate.toLocaleDateString('de-DE')}:</strong>
+                <span style="color: white; font-weight: normal;">${dayOfWeek}</span><br>
+                <strong style="color: #ffcc33; font-weight: normal;">Osterdatum ${year}:</strong>
+                <span style="color: white; font-weight: normal;">${yearInfo.easterDate}</span><br>
+                <strong style="color: #ffcc33; font-weight: normal;">Goldene Zahl:</strong>
+                <span style="color: white; font-weight: normal;">${yearInfo.goldenNumber}</span><br>
+                <strong style="color: #ffcc33; font-weight: normal;">Sonntagsbuchstabe:</strong>
+                <span style="color: white; font-weight: normal;">${yearInfo.dayLetter}</span><br>
+                <strong style="color: #ffcc33; font-weight: normal;">Tagesbuchstabe:</strong>
+                <span style="color: white; font-weight: normal;">${dailyInfo.letter}</span><br>
+                <strong style="color: #ffcc33; font-weight: normal;">Tagesheiliger:</strong>
+                <span style="color: white; font-weight: normal;">${dailyInfo.saint}</span>
             `;
         } else if (!yearInfo) {
             this.dom.calendarInfoDisplay.innerHTML = `
-                <strong style="color: #ffcc33;">Wochentag für ${calcDate.toLocaleDateString('de-DE')}:</strong>
-                <span style="color: white;">${dayOfWeek}</span><br>
-                <strong style="color: #ffcc33;">Tagesbuchstabe:</strong>
-                <span style="color: white;">${dailyInfo?.letter ?? '--'}</span><br>
-                <strong style="color: #ffcc33;">Tagesheiliger:</strong>
-                <span style="color: white;">${dailyInfo?.saint ?? '--'}</span><br>
-                <strong style="color: #ff5555;">Fehlendes Jahr.</strong>
+                <strong style="color: #ffcc33; font-weight: normal;">Wochentag für ${calcDate.toLocaleDateString('de-DE')}:</strong>
+                <span style="color: white; font-weight: normal;">${dayOfWeek}</span><br>
+                <strong style="color: #ffcc33; font-weight: normal;">Tagesbuchstabe:</strong>
+                <span style="color: white; font-weight: normal;">${dailyInfo?.letter ?? '--'}</span><br>
+                <strong style="color: #ffcc33; font-weight: normal;">Tagesheiliger:</strong>
+                <span style="color: white; font-weight: normal;">${dailyInfo?.saint ?? '--'}</span><br>
+                <strong style="color: #ff5555; font-weight: normal;">Fehlendes Jahr.</strong>
                 Jahresdaten für ${year} nicht in der statischen Tabelle hinterlegt.
             `;
         } else {
             this.dom.calendarInfoDisplay.innerHTML = `
-                <strong style="color: #ffcc33;">Wochentag für ${calcDate.toLocaleDateString('de-DE')}:</strong>
-                <span style="color: white;">${dayOfWeek}</span><br>
-                <strong style="color: #ffcc33;">Osterdatum ${year}:</strong>
-                <span style="color: white;">${yearInfo?.easterDate ?? '--'}</span><br>
-                <strong style="color: #ffcc33;">Goldene Zahl:</strong>
-                <span style="color: white;">${yearInfo?.goldenNumber ?? '--'}</span><br>
-                <strong style="color: #ffcc33;">Sonntagsbuchstabe:</strong>
-                <span style="color: white;">${yearInfo?.dayLetter ?? '--'}</span><br>
-                <strong style="color: #ff5555;">Fehlende Tagesdaten.</strong>
+                <strong style="color: #ffcc33; font-weight: normal;">Wochentag für ${calcDate.toLocaleDateString('de-DE')}:</strong>
+                <span style="color: white; font-weight: normal;">${dayOfWeek}</span><br>
+                <strong style="color: #ffcc33; font-weight: normal;">Osterdatum ${year}:</strong>
+                <span style="color: white; font-weight: normal;">${yearInfo?.easterDate ?? '--'}</span><br>
+                <strong style="color: #ffcc33; font-weight: normal;">Goldene Zahl:</strong>
+                <span style="color: white; font-weight: normal;">${yearInfo?.goldenNumber ?? '--'}</span><br>
+                <strong style="color: #ffcc33; font-weight: normal;">Sonntagsbuchstabe:</strong>
+                <span style="color: white; font-weight: normal;">${yearInfo?.dayLetter ?? '--'}</span><br>
+                <strong style="color: #ff5555; font-weight: normal;">Fehlende Tagesdaten.</strong>
             `;
         }
 
         const eclipseList = TimeUtility.getEclipseInfo(year);
-        let eclipseHtml = `<strong style="color: #ffcc33;">Finsternisse ${year}:</strong><br>`;
+        let eclipseHtml = `<strong style="color: #ffcc33; font-weight: normal;">Finsternisse ${year}:</strong><br>`;
 
         if (eclipseList.length > 0) {
             eclipseList.forEach(e => {
-                eclipseHtml += `<span style="color: #ffcc33;">• Datum:</span> <span style="color: white;">${e.date}</span><br>
-                                 <span style="color: #ffcc33;">  Typ:</span> <span style="color: white;">${e.type}</span><br><br>`;
+                eclipseHtml += `<span style="color: #ffcc33; font-weight: normal;">• Datum:</span> <span style="color: white;">${e.date}</span><br>
+                                 <span style="color: #ffcc33; font-weight: normal;">  Typ:</span> <span style="color: white;">${e.type}</span><br><br>`;
             });
         } else {
-            eclipseHtml += `<span style="color: white;">Keine Finsternisdaten für ${year} vorhanden.</span>`;
+            eclipseHtml += `<span style="color: white; font-weight: normal;">Keine Finsternisdaten für ${year} vorhanden.</span>`;
         }
 
         this.dom.eclipseInfo.innerHTML = eclipseHtml;
@@ -431,7 +431,6 @@ export class InputController {
             const sundayLetters = sundayLetterRaw.split(',').map(s => s.trim());
             let usedSundayLetter = '';
 
-            // const isLeapYear = TimeUtility.isLeapYear(year); // <-- NICHT MEHR NÖTIG
             const dailyLetter = dailyInfo.letter;
 
             const weekDays = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];

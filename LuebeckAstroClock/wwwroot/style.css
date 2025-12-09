@@ -5,11 +5,11 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    overflow: hidden;
+    overflow: hidden; /* <<< statt hidden */
     font-family: 'Segoe UI', Roboto, sans-serif;
     color: #f4f4f4;
     font-size: 14px;
-    background-color: #071522; /* Dunkelblau/Schwarz für den Weltraum-Look */
+    background-color: #071522;
 }
 
 body {
@@ -39,21 +39,21 @@ body {
 .controls {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
     width: 250px;
     padding: 0;
     background-color: #0e2030;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    /* Alle Schriften in den Controls gelb machen */
     color: #ffcc33;
+    /* FIX für untere Rundungen */
+    overflow: hidden;
 }
 
-/* App-Titel oberhalb der Controls */
+/* App-Titel */
 .app-title {
     margin: 8px 14px 0 14px;
     color: #ffcc33;
-    /* Vergrößern und als Header hervorheben */
     font-size: 1.3rem;
     font-weight: bold;
     line-height: 1.2;
@@ -62,17 +62,29 @@ body {
 .controls-header {
     padding: 10px 14px;
     background-color: #123b57;
-    color: #ffcc33; /* Gold/Gelb */
+    color: #ffcc33;
     font-weight: bold;
     cursor: pointer;
-    /* Anpassung für den Multi-Header-Block */
-    border-radius: 8px 8px 0 0;
     text-align: center;
-    margin-top: 0;
+    /* FIX: Keine vertikalen Ränder, um Sprünge zu vermeiden */
+    margin: 0;
+    border-radius: 0;
+    border-bottom: none !important;
 }
 
-/* Korrektur für den letzten Header, der die untere Rundung haben soll */
+/* Rundung oben */
+.controls > #infoButtonHeader {
+    border-radius: 8px 8px 0 0;
+}
+
+/* Mittlere Header eckig */
+.controls > #simulationPanel .controls-header,
 .controls > #calendarPanel .controls-header {
+    border-radius: 0;
+}
+
+/* Letzter Header bleibt oben eckig */
+.controls > #historyPanel .controls-header {
     border-radius: 0;
 }
 
@@ -81,24 +93,36 @@ body {
     flex-direction: column;
     gap: 12px;
     padding: 14px;
-    transition: max-height 0.4s ease-out, opacity 0.4s ease-out;
+    /* FIX: Explizite Übergänge für vertikales Padding und Border-Color */
+    transition: max-height 0.4s ease-out, opacity 0.4s ease-out, padding-top 0.4s ease-out, padding-bottom 0.4s ease-out, border-top-color 0.4s ease-out;
     overflow: hidden;
-    max-height: 1000px; /* Groß genug für Übergang */
-    border-bottom: 1px solid #1a4261; /* Trennlinie */
+    max-height: 1000px;
+    /* **FIX:** Platz für die Border reservieren, aber transparent machen (verhindert Layout Shift) */
+    border-top: 1px solid transparent;
+    border-radius: 0;
     position: relative;
+    border-bottom: none;
 }
 
-/* Entfernen der Trennlinie beim letzten Element */
-.controls > #calendarPanel .controls-content {
-    border-bottom: none;
+    /* **FIX:** Border-Top nur bei sichtbarem Inhalt färben. Der Platz ist durch "transparent" bereits reserviert,
+       wodurch das Hüpfen verhindert wird, da sich die Elementgröße nicht ändert. */
+    .controls-content:not(.controls-content--hidden) {
+        /* Nur die Farbe ändern, der Platz ist bereits reserviert */
+        border-top-color: #1a4261;
+    }
+
+/* Untere Rundung des gesamten Controls */
+.controls > #historyPanel .controls-content {
     border-radius: 0 0 8px 8px;
 }
 
-
 .controls-content--hidden {
     max-height: 0;
+    /* FIX: Explizites Padding auf 0 setzen, um Sprünge zu verhindern */
     padding-top: 0;
     padding-bottom: 0;
+    padding-left: 14px;
+    padding-right: 14px;
     opacity: 0;
 }
 
@@ -126,46 +150,63 @@ body {
         text-align: center;
     }
 
+/* ANPASSUNG: Vereinheitlichung der "kleineren" Ausgabetexte */
+#liveDateTime,
+.counter,
+#eclipseInfo {
+    font-size: 13px; /* Kleinste Größe gewählt */
+    color: #f4f4f4; /* Einheitliche, helle Farbe */
+}
+
+/* NEUE ANPASSUNG: Labels auf 13px setzen, um sie schmaler zu machen */
+.controls-content label {
+    font-size: 13px;
+    display: block;
+    width: 100%;
+    margin-bottom: 4px;
+}
+
+/* NEUE ANPASSUNG: Kalender-Info-Anzeige auf das Style von #liveDateTime anpassen */
+#calendarInfoDisplay {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px; /* Explizit gesetzt, um sicherzugehen */
+    color: #f4f4f4;
+}
+/* ENDE ANPASSUNG */
+
 #liveDateTime {
     background: rgba(255, 255, 255, 0.05);
     padding: 6px 10px;
     border-radius: 6px;
-    font-size: 13px;
-    /* NEU: Schriftfarbe explizit auf Weiß setzen */
-    color: #fff;
+    font-size: 13px; /* Explizit gesetzt, um sicherzugehen */
+    color: #f4f4f4;
 }
 
-/* === Zähler/Status (nicht genutzt im HTML, aber definiert) */
 .counter {
     background: rgba(255, 255, 255, 0.05);
     padding: 6px 10px;
     border-radius: 6px;
-    font-size: 13px;
+    /*font-size: 13px; <--- ENTFERNT, da jetzt oben definiert */
 }
 
-/* Regel zur Behebung des Springen-Problems bei vielen Finsternissen */
 #eclipseInfo {
-    /* Setzt eine maximale Höhe, z.B. genug Platz für 3-4 Einträge */
     max-height: 150px;
-    /* Fügt einen vertik. Scrollbalken hinzu, wenn der Inhalt die max-height überschreitet */
     overflow-y: auto;
-    /* Fügt etwas Polsterung hinzu, damit der Text nicht direkt am rechten Rand des Scrollbereichs liegt */
     padding-right: 8px;
-    /* WICHTIG: Die Finsternis-Listenpunkte sollen grau bleiben */
-    color: #aaa;
+    /*color: #aaa; <--- ENTFERNT, da jetzt oben definiert */
 }
-    /* WICHTIG: Der H3 in #eclipseInfo soll wieder gelb sein */
+
     #eclipseInfo h3 {
         color: #ffcc33;
     }
-
 
 /* ======================== */
 /* === 4. Inputs und Buttons === */
 /* ======================== */
 button {
     background-color: #184a6b;
-    /* Button-Text explizit auf Gelb setzen */
     color: #ffcc33;
     border: 1px solid #00aaff;
     border-radius: 6px;
@@ -183,7 +224,6 @@ button {
 
 input, select {
     background-color: #12283b;
-    /* Schriftfarbe der Inputs und Selects wieder hellgrau machen, da sie lesbarer sind */
     color: #f0f0f0;
     border: 1px solid #00aaff;
     border-radius: 4px;
@@ -199,54 +239,55 @@ input, select {
         outline: none;
     }
 
+    /* Die folgende Regel wurde durch die neue, spezifischere Regel oben ersetzt/modifiziert: */
+    /*
 .controls-content label {
     display: block;
     width: 100%;
     margin-bottom: 4px;
 }
+*/
 
-/* === Range Slider Styling === */
-input[type="range"] {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 8px;
-    background: #123b57;
-    border-radius: 4px;
-    margin-top: 5px;
-}
-
-    input[type="range"]::-webkit-slider-thumb {
+    /* === Range Slider === */
+    input[type="range"] {
         -webkit-appearance: none;
-        appearance: none;
-        width: 16px;
-        height: 16px;
-        background: #ffcc33;
-        border-radius: 50%;
-        cursor: pointer;
-        margin-top: -4px;
-    }
-
-    input[type="range"]::-webkit-slider-runnable-track {
         width: 100%;
         height: 8px;
         background: #123b57;
         border-radius: 4px;
+        margin-top: 5px;
     }
 
-    input[type="range"]::-moz-range-track {
-        width: 100%;
-        height: 8px;
-        background: #123b57;
-        border-radius: 4px;
-    }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #ffcc33;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-top: -4px;
+        }
 
-/* === Input Type Number (für Kalenderjahr) === */
-/* Angepasst, um es von den normalen Inputs zu unterscheiden, aber jetzt für das Datum */
-input[type="date-for-calc"] {
-    text-align: center;
-    font-size: 16px;
-    font-weight: bold;
-}
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            background: #123b57;
+            border-radius: 4px;
+        }
+
+        input[type="range"]::-moz-range-track {
+            width: 100%;
+            height: 8px;
+            background: #123b57;
+            border-radius: 4px;
+        }
+
+    input[type="date-for-calc"] {
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+    }
 
 /* ================= */
 /* === 5. Canvas === */
@@ -273,17 +314,43 @@ input[type="date-for-calc"] {
 
     .controls {
         width: 100%;
-        order: 2; /* Controls unten */
+        order: 2;
+        gap: 10px;
     }
 
     #canvas {
-        order: 1; /* Canvas oben */
+        order: 1;
         max-width: 100%;
         margin-bottom: 20px;
     }
 
     body {
         align-items: flex-start;
+    }
+
+    .controls > div > .controls-header {
+        border-radius: 8px 8px 0 0 !important;
+        /* FIX: Auch hier Ränder entfernen */
+        margin: 0;
+    }
+
+    .controls > #infoButtonHeader {
+        border-radius: 8px 8px 0 0 !important;
+    }
+
+    .controls-content:not(.controls-content--hidden) {
+        border-top-color: #1a4261;
+    }
+
+    .controls-content {
+        border-bottom: none !important;
+        border-radius: 0 0 8px 8px !important;
+    }
+
+    /* ACHTUNG: Die Regeln für controls-content--hidden sind nun im globalen Scope definiert und verwenden keine !important mehr, um Modals nicht zu beeinträchtigen. */
+
+    .controls > #simulationPanel > .controls-header {
+        margin-top: 0;
     }
 }
 
@@ -306,10 +373,10 @@ input[type="date-for-calc"] {
 
 .modal-content {
     background-color: #0e2030;
-    padding: 25px; /* Einheitliches Padding */
+    padding: 25px;
     border-radius: 10px;
     width: 90%;
-    max-width: 600px; /* Einheitliche maximale Breite */
+    max-width: 600px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
     animation: slideIn 0.3s ease-out;
     max-height: 90vh;
@@ -318,14 +385,13 @@ input[type="date-for-calc"] {
 
     .modal-content h3 {
         color: #ffcc33;
-        border-bottom: 2px solid #184a6b; /* Einheitliche Border */
+        border-bottom: 2px solid #184a6b;
         padding-bottom: 10px;
-        margin-top: 0; /* Einheitlich: Keine obere Marge für Haupttitel */
+        margin-top: 0;
     }
 
-    /* NEU: Einheitliche Stile für H4 im Modal-Content */
     .modal-content h4 {
-        color: #aaa; /* Graue Farbe, wie in der InfoModal-Vorlage */
+        color: #aaa;
         margin-top: 15px;
         margin-bottom: 10px;
     }
@@ -363,7 +429,6 @@ input[type="date-for-calc"] {
         color: #fff;
     }
 
-/* Animationen */
 @keyframes fadeIn {
     from {
         opacity: 0;
