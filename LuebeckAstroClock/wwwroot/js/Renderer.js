@@ -1,4 +1,4 @@
-﻿// Ausgelagerter ClockRenderer
+// Ausgelagerter ClockRenderer
 // Nutzung: import { ClockRenderer } from '/js/Renderer.js';
 // Konstruktor: new ClockRenderer(ctx, canvas, images, config);
 
@@ -69,26 +69,42 @@ export class ClockRenderer {
 
     draw24HourDial(rOuter, center) {
         const ctx = this.ctx;
-        this.withContext(() => {
-            ctx.translate(center.x, center.y);
-            ctx.fillStyle = 'gold';
-            const { PI, HALF_PI, romanNumerals } = this.config;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+        const img = this.images.zifferring;
+        const size = rOuter * 2 * 1.2; // Größer als rOuter, um den gesamten Bereich abzudecken
 
-            for (let h = 1; h <= 24; h++) {
-                const a = (h * 15 - 105) * PI / 180;
-                const r = rOuter * 1.05;
-                const x = Math.cos(a) * r, y = Math.sin(a) * r;
+        if (img.complete && img.naturalWidth > 0) {
+            // Normale Logik: Zifferblatt-Bild zeichnen
+            this.withContext(() => {
+                ctx.translate(center.x, center.y);
+                // Das Bild wird zentriert gezeichnet
+                ctx.drawImage(img, -size / 2, -size / 2, size, size);
+            });
+        } else {
+            // Backup-Logik: Römische Ziffern zeichnen, falls das Bild nicht geladen ist
+            this.withContext(() => {
+                ctx.translate(center.x, center.y);
+                ctx.fillStyle = 'gold';
+                const { PI, HALF_PI, romanNumerals } = this.config;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
 
-                ctx.save();
-                ctx.translate(x, y);
-                ctx.rotate(a + HALF_PI);
-                ctx.font = `${Math.floor(this.canvas.width * 0.035)}px sans-serif`;
-                ctx.fillText(romanNumerals[(h - 1) % 12], 0, 0);
-                ctx.restore();
-            }
-        });
+                for (let h = 1; h <= 24; h++) {
+                    // Berechnung des Winkels für die 24-Stunden-Anzeige (15 Grad pro Stunde)
+                    // -105 Grad, da 6 Uhr oben (0 Grad) sein soll. (12 Uhr ist 180 Grad)
+                    const a = (h * 15 - 105) * PI / 180;
+                    const r = rOuter * 1.05; // Position außerhalb des Hauptrings
+                    const x = Math.cos(a) * r, y = Math.sin(a) * r;
+
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(a + HALF_PI);
+                    ctx.font = `${Math.floor(this.canvas.width * 0.035)}px sans-serif`;
+                    // Verwenden des 12-Stunden-Zählers für die römischen Ziffern (I-XII)
+                    ctx.fillText(romanNumerals[(h - 1) % 12], 0, 0);
+                    ctx.restore();
+                }
+            });
+        }
     }
 
     drawDisk(radius, angle, color, center) {
@@ -212,7 +228,7 @@ export class ClockRenderer {
                 ctx.drawImage(img, -size / 2, -size / 2, size, size);
             } else {
                 ctx.beginPath();
-                ctx.fillStyle = 'red';
+                ctx.fillStyle = 'white';
                 ctx.arc(0, 0, size / 2, 0, this.config.TWO_PI);
                 ctx.fill();
             }

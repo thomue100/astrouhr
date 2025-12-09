@@ -1,4 +1,4 @@
-﻿// ImageManager.js — verwaltet Laden und Bereitstellen aller Bilder
+// ImageManager.js — verwaltet Laden und Bereitstellen aller Bilder
 export class ImageManager {
     /**
      * @param {{names: string[]}} zodiacData
@@ -8,6 +8,7 @@ export class ImageManager {
         this.images = {
             sun: new Image(),
             pointer: new Image(),
+            zifferring: new Image(),
             bg: new Image(),
             calendarDisk: new Image(),
             heiland: new Image(),
@@ -17,10 +18,11 @@ export class ImageManager {
 
         this.images.sun.src = 'bilder/zeiger/sonne.png';
         this.images.pointer.src = 'bilder/zeiger/zeiger.png';
+        this.images.zifferring.src = 'bilder/hintergrund/zifferring.png';
         this.images.bg.src = 'bilder/hintergrund/sternhimmel.png';
-        this.images.calendarDisk.src = 'bilder/hintergrund/Kalenderscheibe.png';
-        this.images.heiland.src = 'bilder/hintergrund/Heiland.png';
-        this.images.calendarDisk.onerror = () => console.warn('Kalenderscheibe.png konnte nicht geladen werden.');
+        this.images.calendarDisk.src = 'bilder/hintergrund/kalenderscheibe.png';
+        this.images.heiland.src = 'bilder/hintergrund/heiland.png';
+        this.images.calendarDisk.onerror = () => console.warn('kalenderscheibe.png konnte nicht geladen werden.');
 
         if (Array.isArray(zodiacData?.names)) {
             zodiacData.names.forEach(name => {
@@ -40,6 +42,7 @@ export class ImageManager {
         this.allImagesArray = [
             this.images.sun,
             this.images.pointer,
+            this.images.zifferring,
             this.images.bg,
             this.images.calendarDisk,
             this.images.heiland,

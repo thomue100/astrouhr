@@ -1,4 +1,4 @@
-﻿export const AstroConfig = {
+export const AstroConfig = {
     MOON_TO_SUN_RATIO: 6705 / 6940,
     ZODIAC_TO_SUN_RATIO: 366.25 / 365.25,
     MOON_CYCLE_DAYS: 30,
@@ -43,8 +43,9 @@
         },
         symbols: {
             widder: "♈︎", stier: "♉︎", zwilling: "♊︎", krebs: "♋︎", loewe: "♌︎",
-            jungfrau: "♍︎", waage: "♎︎", skorpion: "♏︎", schlangentraeger: "⛎",
-            schuetze: "♐︎", steinbock: "♑︎", wassermann: "♒︎", fische: "♓"
+            jungfrau: "♍︎", waage: "♎︎", skorpion: "♏︎", schlangentraeger: "⛎︎",
+            schuetze: "♐︎", steinbock: "♑︎", wassermann: "♒︎", fische: "♓︎"
+            
         }
     }
  };
