@@ -195,28 +195,67 @@ export class ClockRenderer {
 
     drawMoon(radius, angle, days, center) {
         const ctx = this.ctx;
+        const dynamicMoonHeight = this.canvas.width * 0.04;
+        const dynamicMoonWidth = dynamicMoonHeight * this.config.moonDimensions.aspectRatio;
+
+        /**
+         * Gibt das passende UTF-8 Symbol für die Mondphase zurück.
+         * Geht von 29.5 Tagen pro Zyklus aus.
+         * @param {number} days - Die Phase (z.B. 1 bis 29/30).
+         * @returns {string} Das Mondphasen-Symbol.
+         */
+        const getMoonPhaseSymbol = (days) => {
+            // Angenommen, ein Mondzyklus hat ca. 29.5 Tage.
+            const totalDays = 29.5;
+            // Normalisiere `days` auf den Bereich [0, totalDays)
+            const normalizedDays = (days - 1 + totalDays) % totalDays;
+
+            // Teile den Zyklus in 8 Teile (ca. 3.69 Tage pro Phase)
+            const phaseIndex = Math.floor(normalizedDays / (totalDays / 8));
+
+            // UTF-8 Symbole für die 8 Haupt-Mondphasen (in der Reihenfolge des Zyklus)
+            const symbols = [
+                '🌑', // Neumond (New Moon) - Tag 1
+                '🌒', // Zunehmende Sichel (Waxing Crescent)
+                '🌓', // Erstes Viertel (First Quarter)
+                '🌔', // Zunehmender Mond (Waxing Gibbous)
+                '🌕', // Vollmond (Full Moon) - Tag ca. 15
+                '🌖', // Abnehmender Mond (Waning Gibbous)
+                '🌗', // Letztes Viertel (Last Quarter)
+                '🌘', // Abnehmende Sichel (Waning Crescent)
+            ];
+
+            return symbols[phaseIndex];
+        };
+
         this.withContext(() => {
             ctx.translate(center.x, center.y);
             ctx.rotate(angle);
             const x = radius, y = 0, img = this.images.moonPhases[days - 1];
-            const dynamicMoonHeight = this.canvas.width * 0.04;
-            const dynamicMoonWidth = dynamicMoonHeight * this.config.moonDimensions.aspectRatio;
 
             if (img && img.complete && img.naturalWidth !== 0) {
+                // ✅ Standardfall: Bild der Mondphase zeichnen
                 ctx.save();
                 ctx.translate(x, y);
                 ctx.rotate(this.config.HALF_PI);
                 ctx.drawImage(img, -dynamicMoonWidth / 2, -dynamicMoonHeight / 2, dynamicMoonWidth, dynamicMoonHeight);
                 ctx.restore();
             } else {
-                ctx.beginPath();
-                ctx.fillStyle = 'silver';
-                ctx.ellipse(x, y, dynamicMoonWidth / 2, dynamicMoonHeight / 2, 0, 0, this.config.TWO_PI);
-                ctx.fill();
+                // ❌ Fallback: Bestes/passendstes UTF-8 Symbol anzeigen
+                const moonSymbol = getMoonPhaseSymbol(days);
+
+                // Konfiguration für den Text
+                const fontSize = dynamicMoonHeight * 1.5; // Mache das Symbol sichtbar
+                ctx.font = `${fontSize}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = 'silver'; // Farbe des Symbols
+
+                // Zeichne das Symbol zentriert an der Mondposition
+                ctx.fillText(moonSymbol, x, y);
             }
         });
     }
-
     drawHeilandImage(center) {
         const ctx = this.ctx;
         this.withContext(() => {
