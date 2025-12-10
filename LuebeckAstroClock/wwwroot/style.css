@@ -4,8 +4,10 @@
 html, body {
     margin: 0;
     padding: 0;
-    min-height: 100%; 
-    overflow: hidden; 
+    min-height: 100%;
+    /*Wenn overflow: hidden fehlt, "hüpft" die Anwendung auf dem Desktop,
+      und wenn sie da ist, lässt sie sich auf dem Smartphone nicht mehr scrollen*/
+    /*overflow: hidden;*/
     font-family: 'Segoe UI', Roboto, sans-serif;
     color: #f4f4f4;
     font-size: 14px;
