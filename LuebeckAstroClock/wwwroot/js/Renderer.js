@@ -30,15 +30,13 @@ export class ClockRenderer {
             this.fillRingBetween(rLarge * 1.005, rOuter, '#6d87a5', center);
             this.drawGoldenRings(rLarge * 1.005, rOuter, center);
             this.draw24HourDial(rLarge, center);
-
             this.drawBackgroundImage(rLarge, combinedAngle, center);
+            this.drawStarsOnBlueDiskEdge(rLarge - 5, combinedAngle);
             this.drawZodiacSigns(rSmall, combinedAngle, center);
-
             this.drawPointer(state.angleSun, 0, rLarge * 0.96, 'gold', center);
             this.drawSun(rLarge, state.angleSun, center);
             this.drawMoon(rMoon, state.angleMoon, state.mondAlter, center);
             this.drawPointer(state.angleMoon, 0, rMoon * 0.95, 'gold', center);
-
             this.drawHeilandImage(center);
         }
     }
@@ -120,13 +118,84 @@ export class ClockRenderer {
 
     drawBackgroundImage(radius, rotationAngle, center) {
         const ctx = this.ctx;
-        this.withContext(() => {
-            ctx.translate(center.x, center.y);
-            ctx.rotate(rotationAngle);
-            const size = radius * 2;
-            ctx.drawImage(this.images.bg, -size / 2, -size / 2, size, size);
-        });
+        const img = this.images.bg;
+        const fallbackColor = '#12283b'; // Dunkelblaue Fallback-Farbe
+
+        if (img.complete && img.naturalWidth > 0) {
+            // Standardfall: Bild zeichnen
+            this.withContext(() => {
+                ctx.translate(center.x, center.y);
+                ctx.rotate(rotationAngle);
+                const size = radius * 2;
+                ctx.drawImage(img, -size / 2, -size / 2, size, size);
+            });
+        } else {
+            // FALLBACK: drawDisk verwenden, falls das Bild nicht geladen ist
+            // Wir müssen drawDisk hier direkt mit dem benötigten Radius 
+            // und der Farbe aufrufen, da es keine Rotation des Bildes gibt.
+            this.drawDisk(radius, 0, fallbackColor, center);
+        }
     }
+    /**
+     * Zeichnet einen Stern (wurde außerhalb der Klasse definiert)
+     * KORRIGIERT: Zugriff auf this.ctx und this.config
+     */
+    drawStar(cx, cy, points, outerRadius, innerRadius, color) {
+        const ctx = this.ctx;
+        const PI = this.config.PI;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.translate(cx, cy);
+        ctx.moveTo(0, -outerRadius);
+
+        for (let i = 0; i < points * 2; i++) {
+            const angle = (i * PI) / points;
+            const r = i % 2 === 0 ? outerRadius : innerRadius;
+            const x = Math.sin(angle) * r;
+            const y = -Math.cos(angle) * r;
+            ctx.lineTo(x, y);
+        }
+
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 4;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.restore();
+    }
+
+    /**
+     * Zeichnet die 96 Viertelstunden-Sternchen (wurde außerhalb der Klasse definiert)
+     * KORRIGIERT: Zugriff auf this.ctx, this.canvas, this.config und Aufruf von this.drawStar
+     */
+    drawStarsOnBlueDiskEdge(radius, rotationAngle) {
+        const ctx = this.ctx;
+        const canvas = this.canvas;
+        const TWO_PI = this.config.TWO_PI;
+
+        ctx.save();
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate(rotationAngle);
+        const numStars = 96;
+        const starOuterRadius = radius * 0.015; // Sternengröße
+        const starInnerRadius = starOuterRadius * 0.5;
+        const r = radius - starOuterRadius; // Abstand zur Kante
+
+        for (let i = 0; i < numStars; i++) {
+            const angle = (i * TWO_PI) / numStars;
+            const x = Math.cos(angle) * r;
+            const y = Math.sin(angle) * r;
+            const numPoints = (i + 1) % 4 === 0 ? 8 : 4;
+
+            // KORRIGIERT: Aufruf der Klassenmethode mit this.
+            this.drawStar(x, y, numPoints, starOuterRadius, starInnerRadius, "gold");
+        }
+
+        ctx.restore();
+    }
+
 
     drawCalendarDisk(center, maxRadius, rotationAngle) {
         const ctx = this.ctx;
@@ -256,6 +325,7 @@ export class ClockRenderer {
             }
         });
     }
+
     drawHeilandImage(center) {
         const ctx = this.ctx;
         this.withContext(() => {
@@ -304,10 +374,10 @@ export class ClockRenderer {
                 if (img && img.complete && img.naturalWidth > 0) {
                     ctx.drawImage(img, -size / 2, -size / 2, size, size);
                 } else {
-                    ctx.font = `${1.5}px Arial`;
+                    ctx.font = `${10.5}px Arial`;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.fillStyle = 'black';
+                    ctx.fillStyle = 'white';
                     ctx.fillText(zodiacData.symbols[name], 0, 0);
                 }
 
@@ -316,24 +386,5 @@ export class ClockRenderer {
         });
     }
 
-    drawStar(cx, cy, points, outerRadius, innerRadius, color) {
-        const ctx = this.ctx;
-        this.withContext(() => {
-            ctx.beginPath();
-            ctx.translate(cx, cy);
-            ctx.moveTo(0, -outerRadius);
-            for (let i = 0; i < points * 2; i++) {
-                const angle = (i * this.config.PI) / points;
-                const r = i % 2 === 0 ? outerRadius : innerRadius;
-                const x = Math.sin(angle) * r;
-                const y = -Math.cos(angle) * r;
-                ctx.lineTo(x, y);
-            }
-            ctx.closePath();
-            ctx.fillStyle = color;
-            ctx.shadowColor = color;
-            ctx.shadowBlur = 4;
-            ctx.fill();
-        });
-    }
+   
 }
