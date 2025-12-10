@@ -4,10 +4,14 @@
 html, body {
     margin: 0;
     padding: 0;
-    min-height: 100%;
-    /*Wenn overflow: hidden fehlt, "hüpft" die Anwendung auf dem Desktop,
-      und wenn sie da ist, lässt sie sich auf dem Smartphone nicht mehr scrollen*/
-    /*overflow: hidden;*/
+    /* FIX: Setzt die Höhe auf 100% des Viewports */
+    height: 100%;
+    /* FIX: Versteckt jeden Overflow, um den ungewollten vertikalen 
+       Scrollbalken auf dem Desktop zu beseitigen. 
+       (Mobile Scrollbarkeit wird im .container behandelt) */
+    overflow: hidden;
+    /* Stellt sicher, dass kein horizontaler Scrollbalken entsteht */
+    overflow-x: hidden;
     font-family: 'Segoe UI', Roboto, sans-serif;
     color: #f4f4f4;
     font-size: 14px;
@@ -18,6 +22,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    /* Nutzt 100vh für die korrekte Zentrierung */
     height: 100vh;
 }
 
@@ -107,7 +112,7 @@ body {
 }
 
     /* **FIX:** Border-Top nur bei sichtbarem Inhalt färben. Der Platz ist durch "transparent" bereits reserviert,
-       wodurch das Hüpfen verhindert wird, da sich die Elementgröße nicht ändert. */
+        wodurch das Hüpfen verhindert wird, da sich die Elementgröße nicht ändert. */
     .controls-content:not(.controls-content--hidden) {
         /* Nur die Farbe ändern, der Platz ist bereits reserviert */
         border-top-color: #1a4261;
@@ -241,15 +246,6 @@ input, select {
         outline: none;
     }
 
-    /* Die folgende Regel wurde durch die neue, spezifischere Regel oben ersetzt/modifiziert: */
-    /*
-.controls-content label {
-    display: block;
-    width: 100%;
-    margin-bottom: 4px;
-}
-*/
-
     /* === Range Slider === */
     input[type="range"] {
         -webkit-appearance: none;
@@ -310,14 +306,15 @@ input, select {
         padding: 10px;
         width: 95%;
         height: 95vh;
+        /* HIER IST DAS SCROLLEN FÜR MOBILE ERWÜNSCHT */
         overflow-y: auto;
         box-sizing: border-box;
     }
 
     .controls {
-        width: 100%;
-        order: 2;
-        gap: 10px;
+        position: static;
+        max-height: none;
+        overflow: visible;
     }
 
     #canvas {
@@ -327,6 +324,7 @@ input, select {
     }
 
     body {
+        /* Oben ausrichten, wenn der Container scrollt */
         align-items: flex-start;
     }
 
