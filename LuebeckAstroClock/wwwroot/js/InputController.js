@@ -2,6 +2,13 @@
 import {
     TimeUtility
 } from '/js/TimeUtility.js';
+// NEU: Import der Overlay-Klassen
+import {
+    InfoOverlay
+} from '/js/InfoOverlay.js';
+import {
+    HistoryOverlay
+} from '/js/HistoryOverlay.js';
 
 export class InputController {
     /**
@@ -20,18 +27,20 @@ export class InputController {
         this.minDateLimit = minDateLimit;
         this.maxDateLimit = maxDateLimit;
 
-        // NEU: Overlay aus der HTML entfernen und in den Controller einfügen
-        this._createAndAppendInfoModal();
-        // NEU: Geschichts-Overlay hinzufügen
-        this._createAndAppendHistoryModal();
+        // NEU: Overlay-Klassen instanziieren und Modal-Erstellung auslagern
+        // Die Overlay-Klassen fügen sich selbst in den DOM ein und verwalten ihre eigenen DOM-Referenzen und Listener
+        this.infoOverlay = new InfoOverlay(dom, state);
+        this.historyOverlay = new HistoryOverlay(dom, state);
 
         // Mobile-Optimierung: Controls standardmäßig verstecken
         if (window.innerWidth < 850) {
             this.dom.controlsContent.classList.add('controls-content--hidden');
             this.dom.controlsHeader.textContent = '▶️ Simulation';
             this.dom.calendarContent.classList.add('controls-content--hidden');
-            // NEU: historyContent ebenfalls verstecken
-            this.dom.historyContent.classList.add('controls-content--hidden');
+            // Das historyContent-Panel wird nun nur versteckt, wenn es existiert (es wird jetzt als reines Modal bevorzugt)
+            if (this.dom.historyContent) {
+                this.dom.historyContent.classList.add('controls-content--hidden');
+            }
         }
 
         // Modal-Elements & Close-Handler vorbereiten
@@ -41,191 +50,36 @@ export class InputController {
     /**
      * NEU: Erstellt das infoModal HTML und fügt es in den DOM ein.
      * Aktualisiert anschließend die DOM-Referenzen im this.dom Objekt.
+     * **ENTFERNT**: Funktionalität liegt jetzt in InfoOverlay.js
      */
-    _createAndAppendInfoModal() {
-        const modalHtml = InputController._getInfoModalHtml();
-        // Das Modal am besten an den body anhängen, damit es ein echtes Overlay ist
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-
-        // Referenzen im this.dom Objekt aktualisieren
-        this.dom.infoModal = document.getElementById('infoModal');
-        this.dom.infoModalCloseButton = document.getElementById('infoModalCloseButton');
-        this.dom.infoModalCloseX = document.getElementById('infoModalCloseX');
-    }
+    // _createAndAppendInfoModal() {}
 
     /**
      * NEU: Erstellt das historyModal HTML und fügt es in den DOM ein.
      * Aktualisiert anschließend die DOM-Referenzen im this.dom Objekt.
+     * **ENTFERNT**: Funktionalität liegt jetzt in HistoryOverlay.js
      */
-    _createAndAppendHistoryModal() {
-        const modalHtml = InputController._getHistoryModalHtml();
-        // Das Modal an den body anhängen
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
-
-        // Referenzen im this.dom Objekt aktualisieren
-        // HINWEIS: Neue IDs verwenden, um Konflikte zu vermeiden
-        this.dom.historyModal = document.getElementById('historyModal');
-        this.dom.historyModalCloseButton = document.getElementById('historyModalCloseButton');
-        this.dom.historyModalCloseX = document.getElementById('historyModalCloseX');
-    }
+    // _createAndAppendHistoryModal() {}
 
 
     /**
      * STATISCH: Liefert den HTML-String für das infoModal.
+     * **ENTFERNT**: Funktionalität liegt jetzt in InfoOverlay.js
      */
-    /**
-     * STATISCH: Liefert den HTML-String für das infoModal.
-     */
-    static _getInfoModalHtml() {
-        return `
-            <div id="infoModal" class="modal-overlay" style="display: none;">
-                <div class="modal-content">
-                    <span id="infoModalCloseX" class="modal-close">&times;</span>
-
-                    <h3 style="color:#ffcc33; font-size: 1.5em; margin-bottom: 20px;">Die Astronomische Uhr der Marienkirche 🧭</h3>
-                    
-                    <hr style="border-top: 1px solid #1a4261;"/>
-                    
-                    <div class="modal-step">
-                        <strong style="color: #ffcc33; font-size: 1.2em;">Simulation & Funktionen</strong>
-                        <p style="font-size: 0.9em; margin-top: 5px;">
-                            Willkommen zur Simulation der monumentalen astronomischen Uhr in der Marienkirche zu Lübeck, wie sie **1976 fertiggestellt** wurde und die mittelalterliche Tradition repräsentativer Kunstuhren fortführt.
-                        </p>
-                        <p style="font-size: 0.9em; margin-bottom: 0;">
-                            Diese Uhr erfüllt traditionell eine fünffache Funktion:
-                        </p>
-                        <ul style="font-size: 0.9em; margin-top: 5px; padding-left: 20px;">
-                            <li style="color: white;">Sie zeigt die Uhrzeit an (durch den Sonnenzeiger).</li>
-                            <li style="color: white;">Sie liefert astronomische Daten, insbesondere die Örter von Sonne und Mond in den Tierkreiszeichen und die Mondphase.</li>
-                            <li style="color: white;">Sie stellt kalendarische Daten bereit, die für die Ermittlung der Feste im Kirchenjahr wichtig sind.</li>
-                        </ul>
-                    </div>
-                    
-                    <hr style="border-top: 1px solid #1a4261; margin-top: 20px; margin-bottom: 20px;" />
-
-                    <div class="modal-step">
-                        <strong style="color: #ffcc33; font-size: 1.2em;">So funktioniert die Simulation:</strong>
-                        <ul style="font-size: 0.9em; margin-top: 5px; padding-left: 20px;">
-                            <li style="color: white;">
-                                <span style="color: #ffcc33;">**Uhrscheibe (Astrolabium):**</span> Beobachten Sie, wie sich der **Sonnenzeiger** (zeigt die Uhrzeit) und der **Mondzeiger** im Verhältnis zur umlaufenden Scheibe der 13 **Tierkreissternbilder** bewegen. Die Tierkreisscheibe dreht sich mit hoher Genauigkeit in siderischer Zeit (23 h 56 min 4,1 s).
-                            </li>
-                            <li style="color: white;">
-                                <span style="color: #ffcc33;">**Kalenderscheibe:**</span> Hier finden Sie 8 beschriftete Ringe, welche die kalendarischen Daten (wie Tagesbuchstaben, Osterdaten, Goldene Zahl) anzeigen. Typisch für die Lübecker Uhr sind die Angaben zu den **Sonnen- und Mondfinsternissen**.
-                            </li>
-                            <li style="color: white;">
-                                <span style="color: #ffcc33;">**Steuerung:**</span> Nutzen Sie die Bedienelemente, um die Geschwindigkeit der Animation anzupassen oder ein spezifisches Datum einzugeben, um die **tatsächlichen astronomischen Örter** von Sonne und Mond am Sternenhimmel zu studieren.
-                            </li>
-                        </ul>
-                    </div>
-
-                    <hr style="border-top: 1px solid #1a4261; margin-top: 20px; margin-bottom: 20px;" />
-
-                    <h3 style="color:#ffcc33; font-size: 1.5em; margin-bottom: 20px;">Die Geschichte der Uhr 📜</h3>
-                    
-                    <hr style="border-top: 1px solid #1a4261;"/>
-
-                    <div class="modal-step">
-                        <strong style="color: #ffcc33; font-size: 1.2em;">Die Alte Uhr (Geweiht 1405)</strong>
-                        <p style="font-size: 0.9em; margin-top: 5px;">
-                            Die Tradition dieser monumentalen Kunstuhr begann 1405. Im Jahr 1561 wurde eine umfassende Erweiterung und Erneuerung der Uhrwerke vorgenommen. Die alte Uhr zeigte zusätzlich die Bewegungen der fünf klassischen **Planeten** und besaß Angaben zu **Finsternissen** – ein einzigartiges Merkmal. Im Figurenumgang prozessierten der **Kaiser und die sieben Kurfürsten** vor Christus.
-                        </p>
-                        <p style="font-size: 0.9em; margin-bottom: 0;">
-                            Die alte Uhr wurde am **29. März 1942** zusammen mit der Marienkirche bei einem Brand zerstört.
-                        </p>
-                    </div>
-
-                    <hr style="border-top: 1px solid #1a4261; margin-top: 20px; margin-bottom: 20px;" />
-
-                    <div class="modal-step">
-                        <strong style="color: #ffcc33; font-size: 1.2em;">Die Neue Uhr (1955–1976)</strong>
-                        <p style="font-size: 0.9em; margin-top: 5px;">
-                            Nach der Zerstörung begann der Lübecker Uhrmachermeister **Paul Behrens** 1955 mit der Planung und Neugestaltung. Die neue Uhr ist der alten verpflichtet, aber modernisiert.
-                        </p>
-                        <p style="font-size: 0.9em;">
-                            **Wichtigste Unterschiede zur Vorgängerin:**
-                        </p>
-                        <ul style="font-size: 0.9em; margin-top: 5px; padding-left: 20px;">
-                            <li style="color: white;">Sie zeigt die **tatsächlichen astronomischen Örter** von Sonne und Mond am Sternenhimmel an.</li>
-                            <li style="color: white;">Der Figurenumgang zeigt jetzt **acht Figuren verschiedener Hautfarbe und Stände** (z.B. schwarzer Missionar, weißer Arzt, Japanerin, Indianer) anstelle des Kaisers und der Kurfürsten.</li>
-                            <li style="color: white;">Der Tierkreisring stellt **13 Sternbilder** (inkl. Schlangenträger) dar, um die tatsächlichen Gegebenheiten genauer abzubilden.</li>
-                        </ul>
-                    </div>
-                    
-                    <button id="infoModalCloseButton" style="margin-top: 20px;">Schließen</button>
-                </div>
-            </div>
-        `;
-    }
+    // static _getInfoModalHtml() {}
 
     /**
      * STATISCH: Liefert den HTML-String für das historyModal (Kunst & Geschichte).
+     * **ENTFERNT**: Funktionalität liegt jetzt in HistoryOverlay.js
      */
-    static _getHistoryModalHtml() {
-        // NEU: Separater HTML-String für das Geschichts-Overlay
-        return `
-            <div id="historyModal" class="modal-overlay" style="display: none;">
-                <div class="modal-content">
-                    <span id="historyModalCloseX" class="modal-close">&times;</span>
-
-                    <h3 style="color:#ffcc33; font-size: 1.5em; margin-bottom: 20px;">Kunst & Geschichte der Astronomischen Uhr 📜</h3>
-                    
-                    <hr style="border-top: 1px solid #1a4261;"/>
-                    
-                    <div class="modal-step">
-                        <strong style="color: #ffcc33; font-size: 1.2em;">Die Funktion als Zeitmessung, Himmelskarte und Kalender</strong>
-                        <p style="font-size: 0.9em; margin-top: 5px;">
-                            Die Astronomische Uhr der Marienkirche zu Lübeck ist eine der ältesten und bedeutendsten in Nordeuropa. Sie verbindet die Anzeige der bürgerlichen Zeit mit komplexen **astronomischen Berechnungen** und der **Bestimmung des Osterdatums**. Solche Prunkuhren dienten nicht nur der Zeitmessung, sondern waren auch ein Ausdruck von Macht, Reichtum und wissenschaftlichem Verständnis in der Hansezeit.
-                        </p>
-                    </div>
-                    
-                    <hr style="border-top: 1px solid #1a4261; margin-top: 20px; margin-bottom: 20px;" />
-
-                    <div class="modal-step">
-                        <strong style="color: #ffcc33; font-size: 1.2em;">Die Alte Uhr (1405–1942)</strong>
-                        <ul style="font-size: 0.9em; margin-top: 5px; padding-left: 20px;">
-                            <li style="color: white;">
-                                **Errichtung**: Die erste Uhr wurde 1405 geweiht, wahrscheinlich von dem Kleriker Nikolaus Gronow und dem Uhrmacher Johann von Hemme.
-                            </li>
-                            <li style="color: white;">
-                                **Einzigartigkeit**: Sie zeigte ursprünglich die Bewegungen der fünf klassischen **Planeten** (Merkur, Venus, Mars, Jupiter, Saturn) an, was für die Zeit eine absolute Seltenheit war.
-                            </li>
-                            <li style="color: white;">
-                                **Figurenumgang**: Der Figurenumgang zeigte den **Kaiser und die sieben Kurfürsten** von Deutschland, die vor einer Christusfigur prozessierten – eine politische und theologische Darstellung der Reichsstruktur.
-                            </li>
-                            <li style="color: white; color: #ff5555; font-weight: bold;">
-                                **Zerstörung**: Die gesamte Uhr, einschließlich des wertvollen Gehäuses und der komplizierten Mechanik, wurde in der Nacht vom **29. März 1942** bei einem Bombenangriff zerstört.
-                            </li>
-                        </ul>
-                    </div>
-
-                    <hr style="border-top: 1px solid #1a4261; margin-top: 20px; margin-bottom: 20px;" />
-
-                    <div class="modal-step">
-                        <strong style="color: #ffcc33; font-size: 1.2em;">Die Neue Uhr (1955–1976) und Ihre Kunst</strong>
-                        <ul style="font-size: 0.9em; margin-top: 5px; padding-left: 20px;">
-                            <li style="color: white;">
-                                **Neubau**: Der Lübecker Uhrmachermeister **Paul Behrens** erhielt den Auftrag zum Wiederaufbau. Die Neuanfertigung basiert auf erhaltenen Plänen und Fotos der alten Uhr, ist jedoch technisch und inhaltlich modernisiert.
-                            </li>
-                            <li style="color: white;">
-                                **Neugestaltung der Figuren**: Die berühmteste Neuerung ist der **Figurenumgang**. Statt des Kaisers und der Kurfürsten zeigen die Figuren nun **acht Repräsentanten der Menschheit** aus verschiedenen Kulturen und Ständen (z.B. Schwarzer Missionar, Asiatin, Indianer), als Symbol der universalen Kirche.
-                            </li>
-                            <li style="color: white;">
-                                **Astrologie vs. Astronomie**: Die neue Uhr berücksichtigt das Phänomen des **Schlangenträgers (Ophiuchus)** und zeigt 13 Sternbilder im Tierkreisring, um die tatsächlichen astronomischen Gegebenheiten am Himmel genauer abzubilden – ein Bruch mit der traditionellen 12-Tierkreiszeichen-Astrologie.
-                            </li>
-                        </ul>
-                    </div>
-                    
-                    <button id="historyModalCloseButton" style="margin-top: 20px;">Schließen</button>
-                </div>
-            </div>
-        `;
-    }
+    // static _getHistoryModalHtml() {}
 
     _ensureModalHandlers() {
-        // Durch _createAndAppendInfoModal() sind die DOM-Referenzen jetzt verfügbar
+        // Die Overlays verwalten ihre eigenen Close-Handler. Hier nur die Logik für DayOfWeekModal.
         const dOWModal = this.dom.dayOfWeekModal;
-        const infoModal = this.dom.infoModal; // NEUE REFERENZ
-        const historyModal = this.dom.historyModal; // NEUE REFERENZ
+        // Die Referenzen auf die Modals werden nun aus den Overlays geholt
+        const infoModal = this.infoOverlay.modalElement;
+        const historyModal = this.historyOverlay.modalElement;
 
         if (dOWModal) {
             dOWModal.style.zIndex = dOWModal.style.zIndex || '9999';
@@ -238,37 +92,17 @@ export class InputController {
             if (this.dom.dayOfWeekModalCloseButton) this.dom.dayOfWeekModalCloseButton.addEventListener('click', () => this.hideModal(dOWModal));
         }
 
-        if (infoModal) {
-            infoModal.style.zIndex = infoModal.style.zIndex || '9999';
-            // Click outside content closes modal
-            infoModal.addEventListener('click', (e) => {
-                if (e.target === infoModal) this.hideModal(infoModal);
-            });
-            // Attach listeners to the new close buttons
-            if (this.dom.infoModalCloseX) this.dom.infoModalCloseX.addEventListener('click', () => this.hideModal(infoModal));
-            if (this.dom.infoModalCloseButton) this.dom.infoModalCloseButton.addEventListener('click', () => this.hideModal(infoModal));
-        }
-
-        // NEU: Handler für historyModal
-        if (historyModal) {
-            historyModal.style.zIndex = historyModal.style.zIndex || '9999';
-            // Click outside content closes modal
-            historyModal.addEventListener('click', (e) => {
-                if (e.target === historyModal) this.hideModal(historyModal);
-            });
-            // Attach listeners to the new close buttons
-            if (this.dom.historyModalCloseX) this.dom.historyModalCloseX.addEventListener('click', () => this.hideModal(historyModal));
-            if (this.dom.historyModalCloseButton) this.dom.historyModalCloseButton.addEventListener('click', () => this.hideModal(historyModal));
-        }
-
-        // Escape key closes any open modal
+        // NEU: Nur minimale Handhabung für Escape, falls die Overlays die globalen Event-Listener noch nicht selbst gesetzt haben
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 if (dOWModal && dOWModal.style.display === 'flex') this.hideModal(dOWModal);
-                if (infoModal && infoModal.style.display === 'flex') this.hideModal(infoModal);
-                if (historyModal && historyModal.style.display === 'flex') this.hideModal(historyModal); // NEU
+                // NEU: Überprüfung, ob Overlays geöffnet sind, um sie bei Escape zu schließen (wenn sie das nicht selbst machen)
+                if (infoModal && infoModal.style.display === 'flex') this.infoOverlay.hide();
+                if (historyModal && historyModal.style.display === 'flex') this.historyOverlay.hide();
             }
         });
+
+        // **ALT: Die hier folgende komplexe Logik für infoModal und historyModal wurde in die jeweiligen Overlay-Klassen verschoben**
     }
 
     setup() {
@@ -283,18 +117,19 @@ export class InputController {
                 if (this.state.animationRunning) {
                     this.toggleAnimation();
                 }
-                this.showModal(this.dom.infoModal);
+                // NEU: Aufruf der show-Methode des InfoOverlays
+                this.infoOverlay.show();
             });
         }
 
         // KORREKTUR: Listener für das Kunst & Geschichte Modal
-        // Funktioniert jetzt wie der Info-Button: Klick öffnet direkt das Modal, stoppt die Animation, ändert NICHT den Text auf 🔽
         if (this.dom.historyHeader) {
             this.dom.historyHeader.addEventListener('click', () => {
                 if (this.state.animationRunning) {
                     this.toggleAnimation();
                 }
-                this.showModal(this.dom.historyModal);
+                // NEU: Aufruf der show-Methode des HistoryOverlays
+                this.historyOverlay.show();
             });
         }
 
@@ -314,7 +149,8 @@ export class InputController {
                 if (this.state.animationRunning) {
                     this.toggleAnimation();
                 }
-                this.showModal(this.dom.historyModal);
+                // NEU: Aufruf der show-Methode des HistoryOverlays
+                this.historyOverlay.show();
             });
         }
 
@@ -363,13 +199,13 @@ export class InputController {
                 textOpen: '🔽 Kalender',
                 textClosed: '▶️ Kalender'
             },
-            // NEU: Das History Panel als normales Panel (wird aber durch den Header-Klick des Users als Modal missbraucht)
-            'history': {
-                content: this.dom.historyContent,
-                header: this.dom.historyHeader,
-                textOpen: '🔽 Kunst & Geschichte',
-                textClosed: '▶️ Kunst & Geschichte'
-            }
+            // Das history-Panel wird entfernt, da es nun ein reiner Modal-Trigger ist.
+            // 'history': {
+            //     content: this.dom.historyContent,
+            //     header: this.dom.historyHeader,
+            //     textOpen: '🔽 Kunst & Geschichte',
+            //     textClosed: '▶️ Kunst & Geschichte'
+            // }
         };
 
         const panelToToggle = panels[panelName];
@@ -766,7 +602,8 @@ export class InputController {
             if (this.dom.infoButtonHeader) controlsTotalHeight += this.dom.infoButtonHeader.offsetHeight;
             // Höhe für den History-Header berücksichtigen
             if (this.dom.historyHeader) controlsTotalHeight += this.dom.historyHeader.offsetHeight;
-            // Falls das History-Panel offen ist, dessen Höhe hinzufügen (obwohl es jetzt ein Modal-Trigger ist, für den Fall, dass es doch als Panel genutzt wird)
+            // Der History-Content ist jetzt ein Modal und sollte hier nicht mehr berücksichtigt werden,
+            // aber falls das Panel noch existiert, wird es hier behandelt.
             if (this.dom.historyContent && !this.dom.historyContent.classList.contains('controls-content--hidden')) {
                 controlsTotalHeight += this.dom.historyContent.offsetHeight;
             }
