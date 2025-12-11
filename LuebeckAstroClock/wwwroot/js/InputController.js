@@ -22,12 +22,16 @@ export class InputController {
 
         // NEU: Overlay aus der HTML entfernen und in den Controller einfügen
         this._createAndAppendInfoModal();
+        // NEU: Geschichts-Overlay hinzufügen
+        this._createAndAppendHistoryModal();
 
         // Mobile-Optimierung: Controls standardmäßig verstecken
         if (window.innerWidth < 850) {
             this.dom.controlsContent.classList.add('controls-content--hidden');
             this.dom.controlsHeader.textContent = '▶️ Simulation';
             this.dom.calendarContent.classList.add('controls-content--hidden');
+            // NEU: historyContent ebenfalls verstecken
+            this.dom.historyContent.classList.add('controls-content--hidden');
         }
 
         // Modal-Elements & Close-Handler vorbereiten
@@ -48,6 +52,23 @@ export class InputController {
         this.dom.infoModalCloseButton = document.getElementById('infoModalCloseButton');
         this.dom.infoModalCloseX = document.getElementById('infoModalCloseX');
     }
+
+    /**
+     * NEU: Erstellt das historyModal HTML und fügt es in den DOM ein.
+     * Aktualisiert anschließend die DOM-Referenzen im this.dom Objekt.
+     */
+    _createAndAppendHistoryModal() {
+        const modalHtml = InputController._getHistoryModalHtml();
+        // Das Modal an den body anhängen
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+        // Referenzen im this.dom Objekt aktualisieren
+        // HINWEIS: Neue IDs verwenden, um Konflikte zu vermeiden
+        this.dom.historyModal = document.getElementById('historyModal');
+        this.dom.historyModalCloseButton = document.getElementById('historyModalCloseButton');
+        this.dom.historyModalCloseX = document.getElementById('historyModalCloseX');
+    }
+
 
     /**
      * STATISCH: Liefert den HTML-String für das infoModal.
@@ -136,10 +157,75 @@ export class InputController {
         `;
     }
 
+    /**
+     * STATISCH: Liefert den HTML-String für das historyModal (Kunst & Geschichte).
+     */
+    static _getHistoryModalHtml() {
+        // NEU: Separater HTML-String für das Geschichts-Overlay
+        return `
+            <div id="historyModal" class="modal-overlay" style="display: none;">
+                <div class="modal-content">
+                    <span id="historyModalCloseX" class="modal-close">&times;</span>
+
+                    <h3 style="color:#ffcc33; font-size: 1.5em; margin-bottom: 20px;">Kunst & Geschichte der Astronomischen Uhr 📜</h3>
+                    
+                    <hr style="border-top: 1px solid #1a4261;"/>
+                    
+                    <div class="modal-step">
+                        <strong style="color: #ffcc33; font-size: 1.2em;">Die Funktion als Zeitmessung, Himmelskarte und Kalender</strong>
+                        <p style="font-size: 0.9em; margin-top: 5px;">
+                            Die Astronomische Uhr der Marienkirche zu Lübeck ist eine der ältesten und bedeutendsten in Nordeuropa. Sie verbindet die Anzeige der bürgerlichen Zeit mit komplexen **astronomischen Berechnungen** und der **Bestimmung des Osterdatums**. Solche Prunkuhren dienten nicht nur der Zeitmessung, sondern waren auch ein Ausdruck von Macht, Reichtum und wissenschaftlichem Verständnis in der Hansezeit.
+                        </p>
+                    </div>
+                    
+                    <hr style="border-top: 1px solid #1a4261; margin-top: 20px; margin-bottom: 20px;" />
+
+                    <div class="modal-step">
+                        <strong style="color: #ffcc33; font-size: 1.2em;">Die Alte Uhr (1405–1942)</strong>
+                        <ul style="font-size: 0.9em; margin-top: 5px; padding-left: 20px;">
+                            <li style="color: white;">
+                                **Errichtung**: Die erste Uhr wurde 1405 geweiht, wahrscheinlich von dem Kleriker Nikolaus Gronow und dem Uhrmacher Johann von Hemme.
+                            </li>
+                            <li style="color: white;">
+                                **Einzigartigkeit**: Sie zeigte ursprünglich die Bewegungen der fünf klassischen **Planeten** (Merkur, Venus, Mars, Jupiter, Saturn) an, was für die Zeit eine absolute Seltenheit war.
+                            </li>
+                            <li style="color: white;">
+                                **Figurenumgang**: Der Figurenumgang zeigte den **Kaiser und die sieben Kurfürsten** von Deutschland, die vor einer Christusfigur prozessierten – eine politische und theologische Darstellung der Reichsstruktur.
+                            </li>
+                            <li style="color: white; color: #ff5555; font-weight: bold;">
+                                **Zerstörung**: Die gesamte Uhr, einschließlich des wertvollen Gehäuses und der komplizierten Mechanik, wurde in der Nacht vom **29. März 1942** bei einem Bombenangriff zerstört.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <hr style="border-top: 1px solid #1a4261; margin-top: 20px; margin-bottom: 20px;" />
+
+                    <div class="modal-step">
+                        <strong style="color: #ffcc33; font-size: 1.2em;">Die Neue Uhr (1955–1976) und Ihre Kunst</strong>
+                        <ul style="font-size: 0.9em; margin-top: 5px; padding-left: 20px;">
+                            <li style="color: white;">
+                                **Neubau**: Der Lübecker Uhrmachermeister **Paul Behrens** erhielt den Auftrag zum Wiederaufbau. Die Neuanfertigung basiert auf erhaltenen Plänen und Fotos der alten Uhr, ist jedoch technisch und inhaltlich modernisiert.
+                            </li>
+                            <li style="color: white;">
+                                **Neugestaltung der Figuren**: Die berühmteste Neuerung ist der **Figurenumgang**. Statt des Kaisers und der Kurfürsten zeigen die Figuren nun **acht Repräsentanten der Menschheit** aus verschiedenen Kulturen und Ständen (z.B. Schwarzer Missionar, Asiatin, Indianer), als Symbol der universalen Kirche.
+                            </li>
+                            <li style="color: white;">
+                                **Astrologie vs. Astronomie**: Die neue Uhr berücksichtigt das Phänomen des **Schlangenträgers (Ophiuchus)** und zeigt 13 Sternbilder im Tierkreisring, um die tatsächlichen astronomischen Gegebenheiten am Himmel genauer abzubilden – ein Bruch mit der traditionellen 12-Tierkreiszeichen-Astrologie.
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <button id="historyModalCloseButton" style="margin-top: 20px;">Schließen</button>
+                </div>
+            </div>
+        `;
+    }
+
     _ensureModalHandlers() {
         // Durch _createAndAppendInfoModal() sind die DOM-Referenzen jetzt verfügbar
         const dOWModal = this.dom.dayOfWeekModal;
         const infoModal = this.dom.infoModal; // NEUE REFERENZ
+        const historyModal = this.dom.historyModal; // NEUE REFERENZ
 
         if (dOWModal) {
             dOWModal.style.zIndex = dOWModal.style.zIndex || '9999';
@@ -163,11 +249,24 @@ export class InputController {
             if (this.dom.infoModalCloseButton) this.dom.infoModalCloseButton.addEventListener('click', () => this.hideModal(infoModal));
         }
 
+        // NEU: Handler für historyModal
+        if (historyModal) {
+            historyModal.style.zIndex = historyModal.style.zIndex || '9999';
+            // Click outside content closes modal
+            historyModal.addEventListener('click', (e) => {
+                if (e.target === historyModal) this.hideModal(historyModal);
+            });
+            // Attach listeners to the new close buttons
+            if (this.dom.historyModalCloseX) this.dom.historyModalCloseX.addEventListener('click', () => this.hideModal(historyModal));
+            if (this.dom.historyModalCloseButton) this.dom.historyModalCloseButton.addEventListener('click', () => this.hideModal(historyModal));
+        }
+
         // Escape key closes any open modal
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 if (dOWModal && dOWModal.style.display === 'flex') this.hideModal(dOWModal);
                 if (infoModal && infoModal.style.display === 'flex') this.hideModal(infoModal);
+                if (historyModal && historyModal.style.display === 'flex') this.hideModal(historyModal); // NEU
             }
         });
     }
@@ -188,11 +287,37 @@ export class InputController {
             });
         }
 
+        // KORREKTUR: Listener für das Kunst & Geschichte Modal
+        // Funktioniert jetzt wie der Info-Button: Klick öffnet direkt das Modal, stoppt die Animation, ändert NICHT den Text auf 🔽
+        if (this.dom.historyHeader) {
+            this.dom.historyHeader.addEventListener('click', () => {
+                if (this.state.animationRunning) {
+                    this.toggleAnimation();
+                }
+                this.showModal(this.dom.historyModal);
+            });
+        }
+
+
+        // Nur die Panels für Simulation und Kalender sollen das Umschalt-Verhalten haben,
+        // der historyHeader ist jetzt ein Modal-Trigger (wie infoButtonHeader).
         this.dom.controlsHeader.addEventListener('click', () => this.togglePanel('settings'));
         this.dom.calendarHeader.addEventListener('click', () => this.togglePanel('calendar'));
 
         // Die Funktion showDayOfWeekLogic() enthält bereits die Logik zum Stoppen der Animation
         this.dom.btnShowDayOfWeekLogic.addEventListener('click', () => this.showDayOfWeekLogic());
+
+        // NEU: Der History-Inhalt soll auch via Button geschlossen werden können (redundant, da der Header es nun macht)
+        // Aber falls der Benutzer das Panel offen lässt, kann er den Button noch nutzen.
+        if (this.dom.btnShowHistoryDetails) {
+            this.dom.btnShowHistoryDetails.addEventListener('click', () => {
+                if (this.state.animationRunning) {
+                    this.toggleAnimation();
+                }
+                this.showModal(this.dom.historyModal);
+            });
+        }
+
 
         window.addEventListener('resize', () => this.resizeCanvas());
     }
@@ -237,6 +362,13 @@ export class InputController {
                 header: this.dom.calendarHeader,
                 textOpen: '🔽 Kalender',
                 textClosed: '▶️ Kalender'
+            },
+            // NEU: Das History Panel als normales Panel (wird aber durch den Header-Klick des Users als Modal missbraucht)
+            'history': {
+                content: this.dom.historyContent,
+                header: this.dom.historyHeader,
+                textOpen: '🔽 Kunst & Geschichte',
+                textClosed: '▶️ Kunst & Geschichte'
             }
         };
 
@@ -249,6 +381,8 @@ export class InputController {
         // Toggle the selected panel
         if (isCurrentlyHidden) {
             // Check if animation needs stopping
+            // Wir stoppen die Animation nur, wenn es nicht das Einstellungs-Panel ist (weil dort die Steuerung ist)
+            // und die Animation läuft.
             if (panelName !== 'settings' && this.state.animationRunning) {
                 this.toggleAnimation(); // Stops the animation and changes the button text
             }
@@ -260,6 +394,8 @@ export class InputController {
             for (const name in panels) {
                 if (name !== panelName) {
                     const otherPanel = panels[name];
+                    // ACHTUNG: Das historyHeader-Element ist auch ein Modal-Trigger,
+                    // daher muss die Unterscheidung beibehalten werden, um nicht versehentlich das Modal zu triggern.
                     if (otherPanel.content && !otherPanel.content.classList.contains('controls-content--hidden')) {
                         otherPanel.content.style.transition = 'none';
                         otherPanel.content.classList.add('controls-content--hidden');
@@ -561,6 +697,12 @@ export class InputController {
         if (!modalElement) return;
         modalElement.style.display = 'none';
         document.body.style.overflow = '';
+
+        // KORREKTUR: Die Logik, die den Header-Text zurücksetzt, wird entfernt,
+        // da der Header-Klick nun direkt das Modal öffnet und nicht mehr als Toggle für das Seitenpanel dient.
+        // if (modalElement.id === 'historyModal' && this.dom.historyHeader) {
+        //     this.dom.historyHeader.textContent = '▶️ Kunst & Geschichte';
+        // }
     }
 
     resetToCurrentTime() {
@@ -622,6 +764,12 @@ export class InputController {
             }
             // Höhe für den Info-Button berücksichtigen
             if (this.dom.infoButtonHeader) controlsTotalHeight += this.dom.infoButtonHeader.offsetHeight;
+            // Höhe für den History-Header berücksichtigen
+            if (this.dom.historyHeader) controlsTotalHeight += this.dom.historyHeader.offsetHeight;
+            // Falls das History-Panel offen ist, dessen Höhe hinzufügen (obwohl es jetzt ein Modal-Trigger ist, für den Fall, dass es doch als Panel genutzt wird)
+            if (this.dom.historyContent && !this.dom.historyContent.classList.contains('controls-content--hidden')) {
+                controlsTotalHeight += this.dom.historyContent.offsetHeight;
+            }
 
 
             availableH = window.innerHeight - controlsTotalHeight - gap - margin * 2;

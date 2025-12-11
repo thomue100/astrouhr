@@ -19,7 +19,7 @@ export class ImageManager {
         this.images.sun.src = 'bilder/zeiger/sonne.png';
         this.images.pointer.src = 'bilder/zeiger/zeiger.png';
         this.images.zifferring.src = 'bilder/hintergrund/zifferring.png';
-        this.images.bg.src = 'bilder/hintergrund/sternhimmel.png';
+        this.images.bg.src = 'bilders/hintergrund/sternhimmel.png';
         this.images.calendarDisk.src = 'bilder/hintergrund/kalenderscheibe.png';
         this.images.heiland.src = 'bilder/hintergrund/heiland.png';
         this.images.calendarDisk.onerror = () => console.warn('kalenderscheibe.png konnte nicht geladen werden.');

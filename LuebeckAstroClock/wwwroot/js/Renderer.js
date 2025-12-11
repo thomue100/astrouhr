@@ -31,7 +31,6 @@ export class ClockRenderer {
             this.drawGoldenRings(rLarge * 1.005, rOuter, center);
             this.draw24HourDial(rLarge, center);
             this.drawBackgroundImage(rLarge, combinedAngle, center);
-            this.drawStarsOnBlueDiskEdge(rLarge - 5, combinedAngle);
             this.drawZodiacSigns(rSmall, combinedAngle, center);
             this.drawPointer(state.angleSun, 0, rLarge * 0.96, 'gold', center);
             this.drawSun(rLarge, state.angleSun, center);
@@ -134,6 +133,7 @@ export class ClockRenderer {
             // Wir müssen drawDisk hier direkt mit dem benötigten Radius 
             // und der Farbe aufrufen, da es keine Rotation des Bildes gibt.
             this.drawDisk(radius, 0, fallbackColor, center);
+            this.drawStarsOnBlueDiskEdge(radius - 5, rotationAngle);
         }
     }
     /**

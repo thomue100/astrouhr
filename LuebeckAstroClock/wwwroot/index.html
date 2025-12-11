@@ -58,7 +58,7 @@
                 </div>
             </div>
             <div id="historyPanel">
-                <div class="controls-header" id="historyHeader">
+                <div class="controls-header" id="historyHeader" style="cursor: pointer;">
                     ▶️ Kunst & Geschichte
                 </div>
                 <div class="controls-content controls-content--hidden" id="historyContent">
@@ -121,11 +121,16 @@
             // NEUE GESCHICHTS-ELEMENTE
             historyHeader: document.getElementById('historyHeader'),
             historyContent: document.getElementById('historyContent'),
+            btnShowHistoryDetails: document.getElementById('btnShowHistoryDetails'), // Hinzugefügt
             // INFO-ELEMENTE (WERDEN SPÄTER ERSTELLT UND IM CONTROLLER GESETZT)
             infoButtonHeader: document.getElementById('infoButtonHeader'), // Trigger
             infoModal: null,
             infoModalCloseButton: null,
             infoModalCloseX: null,
+            // NEUE HISTORY-MODAL-REFERENZEN (WERDEN SPÄTER ERSTELLT UND IM CONTROLLER GESETZT)
+            historyModal: null,
+            historyModalCloseButton: null,
+            historyModalCloseX: null,
             // MODAL-ELEMENTE
             dayOfWeekModal: document.getElementById('dayOfWeekModal'),
             dayOfWeekModalCloseX: document.getElementById('dayOfWeekModalCloseX'), // X-Schließen
