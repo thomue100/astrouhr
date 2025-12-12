@@ -30,9 +30,6 @@ export class DayOfWeekOverlay extends AppOverlay {
      * Erzeugt den dynamischen HTML-Inhalt für das Modal basierend auf dem aktuellen Datum.
      */
     _getDynamicHtml(simDate) {
-        // ... (Der gesamte, umfangreiche Inhalt von InputController.showDayOfWeekLogic wurde hierher verschoben) ...
-        // [Der Code ist sehr lang und wurde zur Übersichtlichkeit hier ausgelassen, aber die Logik ist vollständig.]
-
         const year = simDate.getFullYear();
         const yearStr = year.toString();
         const yearInfo = TimeUtility.CalendarData[yearStr];
@@ -46,7 +43,7 @@ export class DayOfWeekOverlay extends AppOverlay {
         let html = '';
 
         if (!yearInfo || !dailyInfo) {
-            html = `<p style="color: #ff5555;">Für das Jahr ${year} oder den ${dateStr} sind keine vollständigen Kalenderdaten... Bitte wählen Sie ein Datum zwischen 1911 und 2080.</p>`;
+            html = `<p style="color: #ff5555;">Für das Jahr ${year} oder den ${dateStr} liegen keine vollständigen Kalenderdaten vor. Bitte wählen Sie ein (anderes) Datum zwischen 1911 und 2080.</p>`;
         } else {
             // ... (Die detaillierte HTML-Generierung und die Logik zur Bestimmung von Sonntagsbuchstaben, Tagesbuchstaben, und Zählung) ...
             let sundayLetterRaw = yearInfo.dayLetter;
@@ -62,7 +59,7 @@ export class DayOfWeekOverlay extends AppOverlay {
                 const letter2 = sundayLetters[1];
                 if (simDate.getMonth() < 2) {
                     usedSundayLetter = letter1;
-                    ruleExplanation = `**Lübecker Regel angewendet**: Das Jahr **${year}** verwendet die Buchstaben **${letter1}** (Jan/Feb) und **${letter2}** (ab März). Da der ${dayOfMonth}. ${monthStr} vor dem 1. März liegt, gilt der **erste Buchstabe (${letter1})**.`;
+                    ruleExplanation = `**Lübecker Regel** angewendet: Das Jahr **${year}** verwendet die Buchstaben **${letter1}** (Jan/Feb) und **${letter2}** (ab März). Da der ${dayOfMonth}. ${monthStr} vor dem 1. März liegt, gilt der **erste Buchstabe (${letter1})**.`;
                 } else {
                     usedSundayLetter = letter2;
                     ruleExplanation = `**Lübecker Regel angewendet**: Das Jahr **${year}** verwendet die Buchstaben **${letter1}** (Jan/Feb) und **${letter2}** (ab März). Da der ${dayOfMonth}. ${monthStr} nach dem 28. Februar liegt, gilt der **zweite Buchstabe (${letter2})** für den Rest des Jahres.`;
