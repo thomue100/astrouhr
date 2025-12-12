@@ -22,7 +22,7 @@ export class HistoryOverlay extends AppOverlay {
   <div class="modal-step">
     <strong style="color: #ffcc33; font-size: 1.2em;">Die Geschichte der Astronomischen Uhr 📜</strong>
     <p style="font-size: 0.9em; margin-top: 5px;">
-      _Die Uhr in St. Marien steht in einer langen Tradition von Repräsentation und Innovation in der Hansestadt Lübeck.
+      Die Uhr in St. Marien steht in einer langen Tradition von Repräsentation und Innovation in der Hansestadt Lübeck.
     </p>
 
     <h3 style="color: #ffcc33; font-size: 1.1em; margin-top: 15px;">Die Vorgängeruhren (1405–1942)</h3>
@@ -37,7 +37,7 @@ export class HistoryOverlay extends AppOverlay {
             <strong style="font-size: 1.0em;">Spätere Anpassungen:</strong> Die Turmuhrenfabrik Eduard Korfhage erneuerte 1889–1890 den Antrieb und ersetzte Zeiger, Tierkreis und Kalenderscheibe. Wegen des alten Uhrwerks musste in jedem Schaltjahr am 1. März die Kalenderscheibe manuell zurückgestellt werden.
         </li>
         <li style="margin-bottom: 5px;">
-            <strong style="font-size: 1.0em;">Zerstörung:</strong> Die historische Uhr wurde am Palmarum (29. März) 1942 beim Bombenangriff auf Lübeck zusammen mit der Marienkirche restlos zerstört.
+            <strong style="font-size: 1.0em;">Zerstörung:</strong> Die historische Uhr wurde am Palmarum (29. März) 1942 beim Bombenangriff auf Lübeck restlos zerstört.
         </li>
     </ul>
 
@@ -99,5 +99,6 @@ export class HistoryOverlay extends AppOverlay {
         </li>
     </ul>
 `;
+
     }
 }
