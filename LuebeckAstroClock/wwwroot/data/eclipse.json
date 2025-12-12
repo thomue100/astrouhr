@@ -154,6 +154,7 @@
     }
   ],
   "2026": [
+    {
       "date": "12.08.26 Uhr: 20:06",
       "type": "Partielle Sonnenfinsternis"
     },
@@ -228,7 +229,7 @@
   ],
   "2036": [
     {
-      "date": "11.02.36 Uhr: 23:13",
+      "date": "11.02.36 Uhr:23:13",
       "type": "Totale Mondfinsternis"
     }
   ]
