@@ -72,17 +72,6 @@
         <canvas id="canvas"></canvas>
     </div>
 
-    <div id="dayOfWeekModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <span id="dayOfWeekModalCloseX" class="modal-close">&times;</span>
-            <h3 id="modalTitle">Wochentags-Rechengang</h3>
-            <div id="modalBody">
-                Wird geladen...
-            </div>
-            <button id="dayOfWeekModalCloseButton" style="margin-top: 20px;">Schließen</button>
-        </div>
-    </div>
-
     <script type="module">
         import { MonthNamesGerman } from '/js/Utils.js';
         import { TimeUtility, configureTimeUtility } from '/js/TimeUtility.js';
@@ -92,6 +81,8 @@
         import { AstroConfig } from '/js/config.js';
         import { ImageManager } from '/js/ImageManager.js';
         import { ClockApp } from '/js/ClockApp.js';
+        // KORREKTUR: DayOfWeekOverlay wird für die Instanziierung im Controller benötigt
+        import { DayOfWeekOverlay } from '/js/DayOfWeekOverlay.js';
 
 
         // GLOBALE KONSTANTEN: Hartkodierte "Lübecker" Grenzwerte für die JS-Prüfung
@@ -131,10 +122,10 @@
             historyModal: null,
             historyModalCloseButton: null,
             historyModalCloseX: null,
-            // MODAL-ELEMENTE
+            // MODAL-ELEMENTE (Vordefiniert in index.html)
             dayOfWeekModal: document.getElementById('dayOfWeekModal'),
-            dayOfWeekModalCloseX: document.getElementById('dayOfWeekModalCloseX'), // X-Schließen
-            dayOfWeekModalCloseButton: document.getElementById('dayOfWeekModalCloseButton'), // Knopf-Schließen
+            dayOfWeekModalCloseX: document.getElementById('dayOfWeekModalCloseX'),
+            dayOfWeekModalCloseButton: document.getElementById('dayOfWeekModalCloseButton'),
             modalTitle: document.getElementById('modalTitle'),
             modalBody: document.getElementById('modalBody')
         };

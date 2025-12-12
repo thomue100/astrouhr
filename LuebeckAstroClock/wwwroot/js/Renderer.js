@@ -40,6 +40,44 @@ export class ClockRenderer {
         }
     }
 
+    // *****************************************************************
+    // NEUE GENERISCHE ZEICHENFUNKTIONEN (Generics)
+    // *****************************************************************
+
+    /**
+     * Generische Methode zum Zeichnen eines radial positionierten und rotierten Assets (Bild oder Fallback).
+     *
+     * @param {object} center
+     * @param {number} angle - Rotationswinkel um den Mittelpunkt.
+     * @param {number} radius - Radialer Abstand vom Zentrum.
+     * @param {HTMLImageElement|null} image - Das zu zeichnende Bild.
+     * @param {number} size - Die Größe (Breite/Höhe) des Assets.
+     * @param {function} [fallbackFn] - Funktion, die aufgerufen wird, wenn das Bild nicht geladen werden kann. Signatur: (ctx, x, y, size)
+     */
+    _drawRadialAsset(center, angle, radius, image, size, fallbackFn = null) {
+        const ctx = this.ctx;
+        this.withContext(() => {
+            ctx.translate(center.x, center.y);
+            ctx.rotate(angle);
+
+            // Position des Bildmittelpunkts in radialer Richtung (0-Grad-Achse)
+            const x = radius;
+            const y = 0;
+
+            if (image && image.complete && image.naturalWidth > 0) {
+                // Bild zeichnen: zentriert bei (x, y)
+                ctx.drawImage(image, x - size / 2, y - size / 2, size, size);
+            } else if (fallbackFn) {
+                // Fallback aufrufen
+                fallbackFn(ctx, x, y, size, this.config);
+            }
+        });
+    }
+
+    // *****************************************************************
+    // SPEZIFISCHE ZEICHENFUNKTIONEN
+    // *****************************************************************
+
     fillRingBetween(rInner, rOuter, color, center) {
         const ctx = this.ctx;
         this.withContext(() => {
@@ -67,17 +105,15 @@ export class ClockRenderer {
     draw24HourDial(rOuter, center) {
         const ctx = this.ctx;
         const img = this.images.zifferring;
-        const size = rOuter * 2 * 1.2; // Größer als rOuter, um den gesamten Bereich abzudecken
+        const size = rOuter * 2 * 1.2;
 
         if (img.complete && img.naturalWidth > 0) {
-            // Normale Logik: Zifferblatt-Bild zeichnen
             this.withContext(() => {
                 ctx.translate(center.x, center.y);
-                // Das Bild wird zentriert gezeichnet
                 ctx.drawImage(img, -size / 2, -size / 2, size, size);
             });
         } else {
-            // Backup-Logik: Römische Ziffern zeichnen, falls das Bild nicht geladen ist
+            // Backup-Logik: Römische Ziffern zeichnen
             this.withContext(() => {
                 ctx.translate(center.x, center.y);
                 ctx.fillStyle = 'gold';
@@ -86,17 +122,14 @@ export class ClockRenderer {
                 ctx.textBaseline = 'middle';
 
                 for (let h = 1; h <= 24; h++) {
-                    // Berechnung des Winkels für die 24-Stunden-Anzeige (15 Grad pro Stunde)
-                    // -105 Grad, da 6 Uhr oben (0 Grad) sein soll. (12 Uhr ist 180 Grad)
                     const a = (h * 15 - 105) * PI / 180;
-                    const r = rOuter * 1.05; // Position außerhalb des Hauptrings
+                    const r = rOuter * 1.05;
                     const x = Math.cos(a) * r, y = Math.sin(a) * r;
 
                     ctx.save();
                     ctx.translate(x, y);
                     ctx.rotate(a + HALF_PI);
                     ctx.font = `${Math.floor(this.canvas.width * 0.035)}px sans-serif`;
-                    // Verwenden des 12-Stunden-Zählers für die römischen Ziffern (I-XII)
                     ctx.fillText(romanNumerals[(h - 1) % 12], 0, 0);
                     ctx.restore();
                 }
@@ -118,10 +151,9 @@ export class ClockRenderer {
     drawBackgroundImage(radius, rotationAngle, center) {
         const ctx = this.ctx;
         const img = this.images.bg;
-        const fallbackColor = '#12283b'; // Dunkelblaue Fallback-Farbe
+        const fallbackColor = '#12283b';
 
         if (img.complete && img.naturalWidth > 0) {
-            // Standardfall: Bild zeichnen
             this.withContext(() => {
                 ctx.translate(center.x, center.y);
                 ctx.rotate(rotationAngle);
@@ -129,18 +161,14 @@ export class ClockRenderer {
                 ctx.drawImage(img, -size / 2, -size / 2, size, size);
             });
         } else {
-            // FALLBACK: drawDisk verwenden, falls das Bild nicht geladen ist
-            // Wir müssen drawDisk hier direkt mit dem benötigten Radius 
-            // und der Farbe aufrufen, da es keine Rotation des Bildes gibt.
+            // FALLBACK: drawDisk verwenden
             this.drawDisk(radius, 0, fallbackColor, center);
             this.drawStarsOnBlueDiskEdge(radius - 5, rotationAngle);
         }
     }
-    /**
-     * Zeichnet einen Stern (wurde außerhalb der Klasse definiert)
-     * KORRIGIERT: Zugriff auf this.ctx und this.config
-     */
+
     drawStar(cx, cy, points, outerRadius, innerRadius, color) {
+        // ... (Logik bleibt unverändert, da sie ein Hilfs-Renderer ist)
         const ctx = this.ctx;
         const PI = this.config.PI;
 
@@ -166,11 +194,8 @@ export class ClockRenderer {
         ctx.restore();
     }
 
-    /**
-     * Zeichnet die 96 Viertelstunden-Sternchen (wurde außerhalb der Klasse definiert)
-     * KORRIGIERT: Zugriff auf this.ctx, this.canvas, this.config und Aufruf von this.drawStar
-     */
     drawStarsOnBlueDiskEdge(radius, rotationAngle) {
+        // ... (Logik bleibt unverändert, da sie ein komplexes Muster ist)
         const ctx = this.ctx;
         const canvas = this.canvas;
         const TWO_PI = this.config.TWO_PI;
@@ -179,17 +204,15 @@ export class ClockRenderer {
         ctx.translate(canvas.width / 2, canvas.height / 2);
         ctx.rotate(rotationAngle);
         const numStars = 96;
-        const starOuterRadius = radius * 0.015; // Sternengröße
+        const starOuterRadius = radius * 0.015;
         const starInnerRadius = starOuterRadius * 0.5;
-        const r = radius - starOuterRadius; // Abstand zur Kante
+        const r = radius - starOuterRadius;
 
         for (let i = 0; i < numStars; i++) {
             const angle = (i * TWO_PI) / numStars;
             const x = Math.cos(angle) * r;
             const y = Math.sin(angle) * r;
             const numPoints = (i + 1) % 4 === 0 ? 8 : 4;
-
-            // KORRIGIERT: Aufruf der Klassenmethode mit this.
             this.drawStar(x, y, numPoints, starOuterRadius, starInnerRadius, "gold");
         }
 
@@ -226,6 +249,7 @@ export class ClockRenderer {
     }
 
     drawPointer(angle, start, end, color, center) {
+        // ... (Logik bleibt unverändert, da es kein Bild-Asset ist, sondern ein Zeiger)
         const ctx = this.ctx;
         this.withContext(() => {
             ctx.translate(center.x, center.y);
@@ -245,21 +269,29 @@ export class ClockRenderer {
         });
     }
 
+    /**
+     * KORRIGIERT: Nutzt _drawRadialAsset.
+     */
     drawSun(radius, angle, center) {
-        const ctx = this.ctx;
-        this.withContext(() => {
-            ctx.translate(center.x, center.y);
-            ctx.rotate(angle);
-            const size = this.canvas.width * 0.05;
-            if (this.images.sun.complete && this.images.sun.naturalWidth > 0) {
-                ctx.drawImage(this.images.sun, radius - size / 2, -size / 2, size, size);
-            } else {
-                ctx.beginPath();
-                ctx.fillStyle = 'gold';
-                ctx.arc(radius - 10, 0, 10, 0, this.config.TWO_PI);
-                ctx.fill();
-            }
-        });
+        const size = this.canvas.width * 0.05;
+
+        const fallbackFn = (ctx, x, y, s, config) => {
+            ctx.beginPath();
+            ctx.fillStyle = 'gold';
+            // Der Kreis wird am (x, y) = (radius, 0) gezeichnet, mit Radius = s/2
+            ctx.arc(x, y, s / 2, 0, config.TWO_PI);
+            ctx.fill();
+        };
+
+        // Der Sonnenzeiger endet am Radius, daher wird das Bild etwas nach innen versetzt
+        this._drawRadialAsset(
+            center,
+            angle,
+            radius - size / 2,
+            this.images.sun,
+            size,
+            fallbackFn
+        );
     }
 
     drawMoon(radius, angle, days, center) {
@@ -269,31 +301,22 @@ export class ClockRenderer {
 
         /**
          * Gibt das passende UTF-8 Symbol für die Mondphase zurück.
-         * Geht von 29.5 Tagen pro Zyklus aus.
-         * @param {number} days - Die Phase (z.B. 1 bis 29/30).
-         * @returns {string} Das Mondphasen-Symbol.
+         * ... (Logik bleibt unverändert)
          */
         const getMoonPhaseSymbol = (days) => {
-            // Angenommen, ein Mondzyklus hat ca. 29.5 Tage.
             const totalDays = 29.5;
-            // Normalisiere `days` auf den Bereich [0, totalDays)
             const normalizedDays = (days - 1 + totalDays) % totalDays;
-
-            // Teile den Zyklus in 8 Teile (ca. 3.69 Tage pro Phase)
             const phaseIndex = Math.floor(normalizedDays / (totalDays / 8));
-
-            // UTF-8 Symbole für die 8 Haupt-Mondphasen (in der Reihenfolge des Zyklus)
+            /*
             const symbols = [
-                '🌑', // Neumond (New Moon) - Tag 1
-                '🌒', // Zunehmende Sichel (Waxing Crescent)
-                '🌓', // Erstes Viertel (First Quarter)
-                '🌔', // Zunehmender Mond (Waxing Gibbous)
-                '🌕', // Vollmond (Full Moon) - Tag ca. 15
-                '🌖', // Abnehmender Mond (Waning Gibbous)
-                '🌗', // Letztes Viertel (Last Quarter)
-                '🌘', // Abnehmende Sichel (Waning Crescent)
+                '🌑', '🌒', '🌓', '🌔',
+                '🌕', '🌖', '🌗', '🌘',
             ];
-
+            */
+            const symbols = [
+                '🌘', '🌗', '🌖', '🌕',
+                '🌔', '🌓', '🌒', '🌑'           
+            ];
             return symbols[phaseIndex];
         };
 
@@ -302,46 +325,56 @@ export class ClockRenderer {
             ctx.rotate(angle);
             const x = radius, y = 0, img = this.images.moonPhases[days - 1];
 
+            // NEU: Nur EINE save/restore-Gruppe für die Platzierung des Mond-Assets
+            ctx.save();
+            ctx.translate(x, y); // Gehe zur radialen Position
+            ctx.rotate(this.config.HALF_PI); // Rotiere das Asset um 90 Grad
+
             if (img && img.complete && img.naturalWidth !== 0) {
                 // ✅ Standardfall: Bild der Mondphase zeichnen
-                ctx.save();
-                ctx.translate(x, y);
-                ctx.rotate(this.config.HALF_PI);
+                // Das Bild wird nun direkt im sub-Kontext gezeichnet
                 ctx.drawImage(img, -dynamicMoonWidth / 2, -dynamicMoonHeight / 2, dynamicMoonWidth, dynamicMoonHeight);
-                ctx.restore();
             } else {
                 // ❌ Fallback: Bestes/passendstes UTF-8 Symbol anzeigen
                 const moonSymbol = getMoonPhaseSymbol(days);
 
                 // Konfiguration für den Text
-                const fontSize = dynamicMoonHeight * 1.5; // Mache das Symbol sichtbar
+                const fontSize = dynamicMoonHeight * 1.5;
                 ctx.font = `${fontSize}px sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillStyle = 'silver'; // Farbe des Symbols
+                ctx.fillStyle = 'silver';
 
-                // Zeichne das Symbol zentriert an der Mondposition
-                ctx.fillText(moonSymbol, x, y);
+                // Zeichne das Symbol zentriert an der (0, 0) Position des sub-Kontexts
+                ctx.fillText(moonSymbol, 0, 0);
             }
+
+            ctx.restore(); // Setzt die interne Translation/Rotation des Mond-Assets zurück
         });
     }
 
+    /**
+     * KORRIGIERT: Nutzt _drawRadialAsset mit angle=0 und radius=0.
+     */
     drawHeilandImage(center) {
-        const ctx = this.ctx;
-        this.withContext(() => {
-            ctx.translate(center.x, center.y);
-            const img = this.images.heiland;
-            const size = this.canvas.width * 0.29;
+        const size = this.canvas.width * 0.29;
 
-            if (img && img.complete && img.naturalWidth > 0) {
-                ctx.drawImage(img, -size / 2, -size / 2, size, size);
-            } else {
-                ctx.beginPath();
-                ctx.fillStyle = 'white';
-                ctx.arc(0, 0, size / 2, 0, this.config.TWO_PI);
-                ctx.fill();
-            }
-        });
+        const fallbackFn = (ctx, x, y, s, config) => {
+            ctx.beginPath();
+            ctx.fillStyle = 'white';
+            // Da x=0 und y=0, wird der Kreis genau im Zentrum gezeichnet
+            ctx.arc(x, y, s / 2, 0, config.TWO_PI);
+            ctx.fill();
+        };
+
+        this._drawRadialAsset(
+            center,
+            0, // angle: keine Rotation
+            0, // radius: zentriert
+            this.images.heiland,
+            size,
+            fallbackFn
+        );
     }
 
     drawZodiacSigns(radius, rotationAngle, center) {
@@ -369,7 +402,7 @@ export class ClockRenderer {
 
                 ctx.save();
                 ctx.translate(x, y);
-                ctx.rotate(-rotationAngle);
+                ctx.rotate(-rotationAngle); // Rotation aufheben, damit das Zeichen aufrecht steht
 
                 if (img && img.complete && img.naturalWidth > 0) {
                     ctx.drawImage(img, -size / 2, -size / 2, size, size);
@@ -386,5 +419,50 @@ export class ClockRenderer {
         });
     }
 
-   
+    /**
+     * Übernimmt die gesamte Logik zur Größenberechnung des Canvas aus dem InputController.
+     * @param {object} dom - DOM-Referenzen, die für die Höhenberechnung benötigt werden.
+     * @param {AstroState} state - Der aktuelle Zustand für drawClock.
+     */
+    updateCanvasSizeAndRedraw(dom, state) {
+        const BREAKPOINT = 850;
+        const isMobile = window.innerWidth < BREAKPOINT;
+        const margin = 20;
+        const controlsW = 250;
+        const gap = 30;
+        let availableW, availableH;
+
+        if (isMobile) {
+            availableW = window.innerWidth - margin * 2;
+            availableH = window.innerHeight - margin * 2;
+
+            let controlsTotalHeight = dom.controlsHeader.offsetHeight;
+            if (!dom.controlsContent.classList.contains('controls-content--hidden')) {
+                controlsTotalHeight += dom.controlsContent.offsetHeight;
+            }
+            controlsTotalHeight += dom.calendarHeader.offsetHeight;
+            if (!dom.calendarContent.classList.contains('controls-content--hidden')) {
+                controlsTotalHeight += dom.calendarContent.offsetHeight;
+            }
+
+            if (dom.infoButtonHeader) controlsTotalHeight += dom.infoButtonHeader.offsetHeight;
+            if (dom.historyHeader) controlsTotalHeight += dom.historyHeader.offsetHeight;
+            if (dom.historyContent && !dom.historyContent.classList.contains('controls-content--hidden')) {
+                controlsTotalHeight += dom.historyContent.offsetHeight;
+            }
+
+            availableH = window.innerHeight - controlsTotalHeight - gap - margin * 2;
+            availableH = Math.min(availableH, window.innerWidth * 0.9);
+        } else {
+            availableW = window.innerWidth - controlsW - gap - margin * 2;
+            availableH = window.innerHeight - margin * 2;
+        }
+
+        const size = Math.min(availableW, availableH);
+        const finalSize = Math.max(size, 200);
+
+        dom.canvas.width = dom.canvas.height = finalSize;
+
+        this.drawClock(state);
+    }
 }

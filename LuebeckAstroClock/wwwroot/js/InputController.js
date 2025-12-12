@@ -2,13 +2,15 @@
 import {
     TimeUtility
 } from '/js/TimeUtility.js';
-// NEU: Import der Overlay-Klassen
 import {
     InfoOverlay
 } from '/js/InfoOverlay.js';
 import {
     HistoryOverlay
 } from '/js/HistoryOverlay.js';
+import {
+    DayOfWeekOverlay
+} from '/js/DayOfWeekOverlay.js';
 
 export class InputController {
     /**
@@ -27,82 +29,33 @@ export class InputController {
         this.minDateLimit = minDateLimit;
         this.maxDateLimit = maxDateLimit;
 
-        // NEU: Overlay-Klassen instanziieren und Modal-Erstellung auslagern
-        // Die Overlay-Klassen fügen sich selbst in den DOM ein und verwalten ihre eigenen DOM-Referenzen und Listener
+        // Overlay-Klassen instanziieren
         this.infoOverlay = new InfoOverlay(dom, state);
         this.historyOverlay = new HistoryOverlay(dom, state);
+        this.dayOfWeekOverlay = new DayOfWeekOverlay(dom, state);
 
         // Mobile-Optimierung: Controls standardmäßig verstecken
         if (window.innerWidth < 850) {
             this.dom.controlsContent.classList.add('controls-content--hidden');
             this.dom.controlsHeader.textContent = '▶️ Simulation';
             this.dom.calendarContent.classList.add('controls-content--hidden');
-            // Das historyContent-Panel wird nun nur versteckt, wenn es existiert (es wird jetzt als reines Modal bevorzugt)
             if (this.dom.historyContent) {
                 this.dom.historyContent.classList.add('controls-content--hidden');
             }
         }
 
-        // Modal-Elements & Close-Handler vorbereiten
         this._ensureModalHandlers();
     }
 
-    /**
-     * NEU: Erstellt das infoModal HTML und fügt es in den DOM ein.
-     * Aktualisiert anschließend die DOM-Referenzen im this.dom Objekt.
-     * **ENTFERNT**: Funktionalität liegt jetzt in InfoOverlay.js
-     */
-    // _createAndAppendInfoModal() {}
-
-    /**
-     * NEU: Erstellt das historyModal HTML und fügt es in den DOM ein.
-     * Aktualisiert anschließend die DOM-Referenzen im this.dom Objekt.
-     * **ENTFERNT**: Funktionalität liegt jetzt in HistoryOverlay.js
-     */
-    // _createAndAppendHistoryModal() {}
-
-
-    /**
-     * STATISCH: Liefert den HTML-String für das infoModal.
-     * **ENTFERNT**: Funktionalität liegt jetzt in InfoOverlay.js
-     */
-    // static _getInfoModalHtml() {}
-
-    /**
-     * STATISCH: Liefert den HTML-String für das historyModal (Kunst & Geschichte).
-     * **ENTFERNT**: Funktionalität liegt jetzt in HistoryOverlay.js
-     */
-    // static _getHistoryModalHtml() {}
-
     _ensureModalHandlers() {
-        // Die Overlays verwalten ihre eigenen Close-Handler. Hier nur die Logik für DayOfWeekModal.
-        const dOWModal = this.dom.dayOfWeekModal;
-        // Die Referenzen auf die Modals werden nun aus den Overlays geholt
-        const infoModal = this.infoOverlay.modalElement;
-        const historyModal = this.historyOverlay.modalElement;
-
-        if (dOWModal) {
-            dOWModal.style.zIndex = dOWModal.style.zIndex || '9999';
-            // Click outside content closes modal
-            dOWModal.addEventListener('click', (e) => {
-                if (e.target === dOWModal) this.hideModal(dOWModal);
-            });
-            // Attach listeners to the new close buttons
-            if (this.dom.dayOfWeekModalCloseX) this.dom.dayOfWeekModalCloseX.addEventListener('click', () => this.hideModal(dOWModal));
-            if (this.dom.dayOfWeekModalCloseButton) this.dom.dayOfWeekModalCloseButton.addEventListener('click', () => this.hideModal(dOWModal));
-        }
-
-        // NEU: Nur minimale Handhabung für Escape, falls die Overlays die globalen Event-Listener noch nicht selbst gesetzt haben
+        // Die Modal-Schließ-Logik (Klick außerhalb, X, Button) liegt nun in den Overlay-Klassen
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (dOWModal && dOWModal.style.display === 'flex') this.hideModal(dOWModal);
-                // NEU: Überprüfung, ob Overlays geöffnet sind, um sie bei Escape zu schließen (wenn sie das nicht selbst machen)
-                if (infoModal && infoModal.style.display === 'flex') this.infoOverlay.hide();
-                if (historyModal && historyModal.style.display === 'flex') this.historyOverlay.hide();
+                if (this.dayOfWeekOverlay.isVisible()) this.dayOfWeekOverlay.hide();
+                if (this.infoOverlay.isVisible()) this.infoOverlay.hide();
+                if (this.historyOverlay.isVisible()) this.historyOverlay.hide();
             }
         });
-
-        // **ALT: Die hier folgende komplexe Logik für infoModal und historyModal wurde in die jeweiligen Overlay-Klassen verschoben**
     }
 
     setup() {
@@ -111,71 +64,82 @@ export class InputController {
         this.dom.btnReset.addEventListener('click', () => this.resetToCurrentTime());
         this.dom.toggleButton.addEventListener('click', () => this.toggleAnimation());
 
-        // FIX 1.1: Listener für das Info-Modal (stoppt jetzt auch die Animation)
         if (this.dom.infoButtonHeader) {
             this.dom.infoButtonHeader.addEventListener('click', () => {
-                if (this.state.animationRunning) {
-                    this.toggleAnimation();
-                }
-                // NEU: Aufruf der show-Methode des InfoOverlays
+                if (this.state.animationRunning) this.toggleAnimation();
                 this.infoOverlay.show();
             });
         }
 
-        // KORREKTUR: Listener für das Kunst & Geschichte Modal
         if (this.dom.historyHeader) {
             this.dom.historyHeader.addEventListener('click', () => {
-                if (this.state.animationRunning) {
-                    this.toggleAnimation();
-                }
-                // NEU: Aufruf der show-Methode des HistoryOverlays
+                if (this.state.animationRunning) this.toggleAnimation();
                 this.historyOverlay.show();
             });
         }
 
-
-        // Nur die Panels für Simulation und Kalender sollen das Umschalt-Verhalten haben,
-        // der historyHeader ist jetzt ein Modal-Trigger (wie infoButtonHeader).
+        // Panel-Umschaltung
         this.dom.controlsHeader.addEventListener('click', () => this.togglePanel('settings'));
         this.dom.calendarHeader.addEventListener('click', () => this.togglePanel('calendar'));
 
-        // Die Funktion showDayOfWeekLogic() enthält bereits die Logik zum Stoppen der Animation
-        this.dom.btnShowDayOfWeekLogic.addEventListener('click', () => this.showDayOfWeekLogic());
-
-        // NEU: Der History-Inhalt soll auch via Button geschlossen werden können (redundant, da der Header es nun macht)
-        // Aber falls der Benutzer das Panel offen lässt, kann er den Button noch nutzen.
-        if (this.dom.btnShowHistoryDetails) {
-            this.dom.btnShowHistoryDetails.addEventListener('click', () => {
-                if (this.state.animationRunning) {
-                    this.toggleAnimation();
-                }
-                // NEU: Aufruf der show-Methode des HistoryOverlays
-                this.historyOverlay.show();
+        // Haupt-Button ruft DayOfWeekOverlay.show() auf
+        if (this.dom.btnShowDayOfWeekLogic) {
+            this.dom.btnShowDayOfWeekLogic.addEventListener('click', () => {
+                if (this.state.animationRunning) this.toggleAnimation();
+                this.dayOfWeekOverlay.show();
             });
         }
 
+        // History-Details via Button
+        if (this.dom.btnShowHistoryDetails) {
+            this.dom.btnShowHistoryDetails.addEventListener('click', () => {
+                if (this.state.animationRunning) this.toggleAnimation();
+                this.historyOverlay.show();
+            });
+        }
 
         window.addEventListener('resize', () => this.resizeCanvas());
     }
 
+    /**
+     * Führt alle astronomischen Berechnungen für ein gegebenes Datum durch
+     * und aktualisiert den AstroState. (Ausgelagerte Logik)
+     * @param {Date} date
+     * @private
+     */
+    _updateAstroStateAngles(date) {
+        // 1. Sonnenwinkel
+        this.state.angleSun = TimeUtility.calculateSunAngle(date);
+
+        // 2. Mondalter und Mondwinkel
+        const frac = TimeUtility.calculateMoonAgeFromDate(date);
+        this.state.mondAlterFractional = frac;
+        this.state.mondAlter = Math.floor(frac) + 1;
+        const moonDiffRad = TimeUtility.calculateMoonRotationDifference(date);
+        this.state.angleMoon = TimeUtility.calculateMoonAngle(this.state.angleSun, moonDiffRad);
+
+        // 3. Tierkreis-Winkel
+        this.state.zodiacDayOffsetAngle = TimeUtility.calculateZodiacOffsetAngle(date, this.state.angleSun);
+        this.state.angleZodiac = this.state.zodiacDayOffsetAngle;
+
+        // 4. Kalenderscheiben-Winkel
+        this.state.angleCalendarDisk = TimeUtility.calculateCalendarDiskAngle(date);
+    }
+
+    /**
+     * Verarbeitet das 'change' Event des Datums-Inputs, validiert die Eingabe
+     * und aktualisiert den Zustand.
+     * @param {boolean} updateCalendarDateFromInput
+     * @private
+     */
     _updateSunAndRedraw(updateCalendarDateFromInput = false) {
         const isValid = this.updateSimDateFromInput();
 
         if (isValid) {
-            this.state.angleSun = TimeUtility.calculateSunAngle(this.state.simDate);
+            this._updateAstroStateAngles(this.state.simDate); // Berechnung auslagern
 
-            const frac = TimeUtility.calculateMoonAgeFromDate(this.state.simDate);
-            this.state.mondAlterFractional = frac;
-            this.state.mondAlter = Math.floor(frac) + 1;
-
-            const moonDiffRad = TimeUtility.calculateMoonRotationDifference(this.state.simDate);
-            this.state.angleMoon = TimeUtility.calculateMoonAngle(this.state.angleSun, moonDiffRad);
-
-            this.state.zodiacDayOffsetAngle = TimeUtility.calculateZodiacOffsetAngle(this.state.simDate, this.state.angleSun);
-            this.state.angleZodiac = this.state.zodiacDayOffsetAngle;
-
-            this.state.angleCalendarDisk = TimeUtility.calculateCalendarDiskAngle(this.state.simDate);
-
+            // UI-Updates und Redraw erfolgen nur bei gültigem Input
+            TimeUtility.updateLiveDateTime(this.state);
             this.renderer.drawClock(this.state);
 
             if (updateCalendarDateFromInput) {
@@ -183,6 +147,8 @@ export class InputController {
             }
         }
     }
+
+    // ... (togglePanel bleibt unverändert) ...
 
     togglePanel(panelName) {
         // Map panelName to DOM elements and texts
@@ -198,14 +164,7 @@ export class InputController {
                 header: this.dom.calendarHeader,
                 textOpen: '🔽 Kalender',
                 textClosed: '▶️ Kalender'
-            },
-            // Das history-Panel wird entfernt, da es nun ein reiner Modal-Trigger ist.
-            // 'history': {
-            //     content: this.dom.historyContent,
-            //     header: this.dom.historyHeader,
-            //     textOpen: '🔽 Kunst & Geschichte',
-            //     textClosed: '▶️ Kunst & Geschichte'
-            // }
+            }
         };
 
         const panelToToggle = panels[panelName];
@@ -217,8 +176,6 @@ export class InputController {
         // Toggle the selected panel
         if (isCurrentlyHidden) {
             // Check if animation needs stopping
-            // Wir stoppen die Animation nur, wenn es nicht das Einstellungs-Panel ist (weil dort die Steuerung ist)
-            // und die Animation läuft.
             if (panelName !== 'settings' && this.state.animationRunning) {
                 this.toggleAnimation(); // Stops the animation and changes the button text
             }
@@ -230,8 +187,6 @@ export class InputController {
             for (const name in panels) {
                 if (name !== panelName) {
                     const otherPanel = panels[name];
-                    // ACHTUNG: Das historyHeader-Element ist auch ein Modal-Trigger,
-                    // daher muss die Unterscheidung beibehalten werden, um nicht versehentlich das Modal zu triggern.
                     if (otherPanel.content && !otherPanel.content.classList.contains('controls-content--hidden')) {
                         otherPanel.content.style.transition = 'none';
                         otherPanel.content.classList.add('controls-content--hidden');
@@ -258,8 +213,6 @@ export class InputController {
         // Die Größenänderung erfolgt verzögert, um die CSS-Animation abzuwarten (450ms)
         setTimeout(() => {
             this.resizeCanvas();
-            this.renderer.drawClock(this.state);
-
             // FIX GEGEN DAS SPRINGEN: Setze die Scroll-Position nach der Größenanpassung zurück
             window.scrollTo(0, 0);
         }, 450);
@@ -281,10 +234,81 @@ export class InputController {
         }
 
         this.state.simDate = d;
-        TimeUtility.updateLiveDateTime(this.state);
+        // TimeUtility.updateLiveDateTime(this.state); <--- Entfernt, wird jetzt in _updateSunAndRedraw ausgeführt.
         return true;
     }
 
+    /**
+     * Generiert den HTML-String für die Kalenderinformationen.
+     * @private
+     */
+    _generateCalendarHtml(calcDate, yearInfo, dailyInfo) {
+        const dayOfWeek = TimeUtility.getDayOfWeekString(calcDate);
+        const dateString = calcDate.toLocaleDateString('de-DE');
+        const year = calcDate.getFullYear();
+
+        // Generiere Grundstruktur
+        let html = `
+            <strong style="color: #ffcc33; font-weight: normal;">Wochentag für ${dateString}:</strong>
+            <span style="color: white; font-weight: normal;">${dayOfWeek}</span><br>
+        `;
+
+        // Prüfe auf Jahresdaten
+        if (yearInfo) {
+            html += `
+                <strong style="color: #ffcc33; font-weight: normal;">Osterdatum ${year}:</strong>
+                <span style="color: white; font-weight: normal;">${yearInfo.easterDate ?? '--'}</span><br>
+                <strong style="color: #ffcc33; font-weight: normal;">Goldene Zahl:</strong>
+                <span style="color: white; font-weight: normal;">${yearInfo.goldenNumber ?? '--'}</span><br>
+                <strong style="color: #ffcc33; font-weight: normal;">Sonntagsbuchstabe:</strong>
+                <span style="color: white; font-weight: normal;">${yearInfo.dayLetter ?? '--'}</span><br>
+            `;
+        } else {
+            html += `<strong style="color: #ff5555; font-weight: normal;">Fehlendes Jahr.</strong> Jahresdaten für ${year} nicht in der statischen Tabelle hinterlegt.<br>`;
+        }
+
+        // Prüfe auf Tagesdaten
+        if (dailyInfo && dailyInfo.letter !== 'N/A') {
+            html += `
+                <strong style="color: #ffcc33; font-weight: normal;">Tagesbuchstabe:</strong>
+                <span style="color: white; font-weight: normal;">${dailyInfo.letter}</span><br>
+                <strong style="color: #ffcc33; font-weight: normal;">Tagesheilige(r):</strong>
+                <span style="color: white; font-weight: normal;">${dailyInfo.saint}</span>
+            `;
+        } else if (yearInfo) {
+            // Fehlende Tagesdaten nur anzeigen, wenn die Jahresdaten OK sind
+            html += `<strong style="color: #ff5555; font-weight: normal;">Fehlende Tagesdaten.</strong>`;
+        }
+
+        return html;
+    }
+
+    /**
+     * Generiert den HTML-String für die Finsternisdaten.
+     * @private
+     */
+    _generateEclipseHtml(year) {
+        const eclipseList = TimeUtility.getEclipseInfo(year);
+        let eclipseHtml = `<strong style="color: #ffcc33; font-weight: normal;">Finsternisse ${year}:</strong><br>`;
+
+        if (eclipseList.length > 0) {
+            eclipseList.forEach(e => {
+                eclipseHtml += `<span style="color: #ffcc33; font-weight: normal;">• Datum:</span> <span style="color: white;">${e.date}</span><br>
+                                <span style="color: #ffcc33; font-weight: normal;">  Typ:</span> <span style="color: white;">${e.type}</span><br>`;
+            });
+            // Entferne das letzte <br>
+            if (eclipseHtml.endsWith('<br>')) {
+                eclipseHtml = eclipseHtml.substring(0, eclipseHtml.length - 4);
+            }
+        } else {
+            eclipseHtml += `<span style="color: white; font-weight: normal;">Keine Finsternisdaten für ${year} vorhanden.</span>`;
+        }
+        return eclipseHtml;
+    }
+
+    /**
+     * Aktualisiert die Kalenderinformationen im DOM.
+     */
     updateCalendarInfo() {
         const calcDate = this.state.simDate;
         const year = calcDate.getFullYear();
@@ -297,274 +321,35 @@ export class InputController {
 
         const yearInfo = TimeUtility.getCalendarInfo(year);
         const dailyInfo = TimeUtility.getDailyCalendarInfo(calcDate);
-        const dayOfWeek = TimeUtility.getDayOfWeekString(calcDate);
 
-        if (yearInfo && dailyInfo) {
-            this.dom.calendarInfoDisplay.innerHTML = `
-                <strong style="color: #ffcc33; font-weight: normal;">Wochentag für ${calcDate.toLocaleDateString('de-DE')}:</strong>
-                <span style="color: white; font-weight: normal;">${dayOfWeek}</span><br>
-                <strong style="color: #ffcc33; font-weight: normal;">Osterdatum ${year}:</strong>
-                <span style="color: white; font-weight: normal;">${yearInfo.easterDate}</span><br>
-                <strong style="color: #ffcc33; font-weight: normal;">Goldene Zahl:</strong>
-                <span style="color: white; font-weight: normal;">${yearInfo.goldenNumber}</span><br>
-                <strong style="color: #ffcc33; font-weight: normal;">Sonntagsbuchstabe:</strong>
-                <span style="color: white; font-weight: normal;">${yearInfo.dayLetter}</span><br>
-                <strong style="color: #ffcc33; font-weight: normal;">Tagesbuchstabe:</strong>
-                <span style="color: white; font-weight: normal;">${dailyInfo.letter}</span><br>
-                <strong style="color: #ffcc33; font-weight: normal;">Tagesheilige(r):</strong>
-                <span style="color: white; font-weight: normal;">${dailyInfo.saint}</span>
-            `;
-        } else if (!yearInfo) {
-            this.dom.calendarInfoDisplay.innerHTML = `
-                <strong style="color: #ffcc33; font-weight: normal;">Wochentag für ${calcDate.toLocaleDateString('de-DE')}:</strong>
-                <span style="color: white; font-weight: normal;">${dayOfWeek}</span><br>
-                <strong style="color: #ffcc33; font-weight: normal;">Tagesbuchstabe:</strong>
-                <span style="color: white; font-weight: normal;">${dailyInfo?.letter ?? '--'}</span><br>
-                <strong style="color: #ffcc33; font-weight: normal;">Tagesheilige(r):</strong>
-                <span style="color: white; font-weight: normal;">${dailyInfo?.saint ?? '--'}</span><br>
-                <strong style="color: #ff5555; font-weight: normal;">Fehlendes Jahr.</strong>
-                Jahresdaten für ${year} nicht in der statischen Tabelle hinterlegt.
-            `;
-        } else {
-            this.dom.calendarInfoDisplay.innerHTML = `
-                <strong style="color: #ffcc33; font-weight: normal;">Wochentag für ${calcDate.toLocaleDateString('de-DE')}:</strong>
-                <span style="color: white; font-weight: normal;">${dayOfWeek}</span><br>
-                <strong style="color: #ffcc33; font-weight: normal;">Osterdatum ${year}:</strong>
-                <span style="color: white; font-weight: normal;">${yearInfo?.easterDate ?? '--'}</span><br>
-                <strong style="color: #ffcc33; font-weight: normal;">Goldene Zahl:</strong>
-                <span style="color: white; font-weight: normal;">${yearInfo?.goldenNumber ?? '--'}</span><br>
-                <strong style="color: #ffcc33; font-weight: normal;">Sonntagsbuchstabe:</strong>
-                <span style="color: white; font-weight: normal;">${yearInfo?.dayLetter ?? '--'}</span><br>
-                <strong style="color: #ff5555; font-weight: normal;">Fehlende Tagesdaten.</strong>
-            `;
-        }
-
-        const eclipseList = TimeUtility.getEclipseInfo(year);
-        let eclipseHtml = `<strong style="color: #ffcc33; font-weight: normal;">Finsternisse ${year}:</strong><br>`;
-
-        if (eclipseList.length > 0) {
-            eclipseList.forEach(e => {
-                eclipseHtml += `<span style="color: #ffcc33; font-weight: normal;">• Datum:</span> <span style="color: white;">${e.date}</span><br>
-                                 <span style="color: #ffcc33; font-weight: normal;">  Typ:</span> <span style="color: white;">${e.type}</span><br><br>`;
-            });
-        } else {
-            eclipseHtml += `<span style="color: white; font-weight: normal;">Keine Finsternisdaten für ${year} vorhanden.</span>`;
-        }
-
-        this.dom.eclipseInfo.innerHTML = eclipseHtml;
+        // Daten im DOM anzeigen
+        this.dom.calendarInfoDisplay.innerHTML = this._generateCalendarHtml(calcDate, yearInfo, dailyInfo);
+        this.dom.eclipseInfo.innerHTML = this._generateEclipseHtml(year);
     }
-
-    showDayOfWeekLogic() {
-        // FIX 1.2: Stoppe die Animation, falls sie läuft.
-        if (this.state.animationRunning) {
-            this.toggleAnimation();
-        }
-
-        // ANPASSUNG: Verwende das simDate aus dem state
-        const simDate = this.state.simDate;
-
-        const year = simDate.getFullYear();
-        const yearStr = year.toString(); // Für den Zugriff auf CalendarData
-        // ZUGRIFF AUF GELADENE GLOBALE DATEN
-        const yearInfo = TimeUtility.CalendarData[yearStr]; // Sonntagsbuchstaben-Daten (z.B. E,D oder B,A)
-        const dailyInfo = TimeUtility.getDailyCalendarInfo(simDate); // Tagesbuchstabe-Daten (z.B. C)
-
-        const dateStr = `${simDate.getDate().toString().padStart(2, '0')}.${(simDate.getMonth() + 1).toString().padStart(2, '0')}.${simDate.getFullYear()}`;
-        const monthStr = simDate.toLocaleDateString('de-DE', {
-            month: 'long'
-        });
-        const dayOfMonth = simDate.getDate();
-        const dayOfWeekActual = TimeUtility.getDayOfWeekString(simDate); // Tatsächlicher Wochentag zur Verifikation
-
-        this.dom.modalTitle.textContent = `Wochentags-Rechengang für den ${dateStr} 🗓️`;
-        let html = '';
-
-        if (!yearInfo || !dailyInfo) {
-            html = `<p style="color: #ff5555;">Für das Jahr ${year} oder den ${dateStr} sind keine vollständigen Kalenderdaten (Sonntags- oder Tagesbuchstabe) in den statischen Tabellen hinterlegt. Bitte wählen Sie ein Datum zwischen 1911 und 2080, für das Beispieldaten vorliegen (z.B. 2025).</p>`;
-        } else {
-
-            // --- ERSTER ABSCHNITT: ALLGEMEINE ERKLÄRUNG DER KALENDERSCHEIBE (NEU) ---
-            html += `<div class="modal-step" style="background-color: #0e3048; padding: 10px; border-radius: 6px; margin-bottom: 20px;">
-                                <h3 style="margin-top:0; color:#ffcc33; font-size: 1.2em;">Die Kalenderscheibe 🧭</h3>
-                                <p style="font-size: 0.9em; margin-bottom: 5px;">
-                                    Die Kalenderscheibe ist in mehrere Kreise unterteilt. Im äußeren Kreis sieht man neben den **366 Tagen** des Jahres – 366, weil der 29. Februar berücksichtigt ist, der in Jahren mit 365 Tagen automatisch übersprungen wird – große rote Buchstaben: **ABCDEFG**. Diese sieben Buchstaben, die sich laufend wiederholen, geben die **Wochentage** an. Welcher dieser Buchstaben den Sonntag bezeichnet, ist im Innenkreis aus den roten Buchstaben neben den Jahreszahlen zu ersehen.
-                                </p>
-                                <p style="font-size: 0.9em; margin-bottom: 0;">
-                                    Ganz innen stehen dabei die Daten der **Ostersonntage** von 1911 bis 2080. Dazwischen stehen die sogenannten **goldenen Zahlen**. Sie zeigen an, an welcher Stelle das betreffende Jahr im **Mondzirkel** steht, der 19 Jahre umfasst: Deshalb die Ziffern 1 bis 19. Bis heute ist Ostern der erste Sonntag nach Frühlingsvollmond.
-                                </p>
-
-                            </div>
-                            <hr style="border-top: 1px solid #1a4261;"/>`;
-
-
-            // --- Berechnungen für die Erklärung (Lübecker Kalenderregel) ---
-
-            let sundayLetterRaw = yearInfo.dayLetter; // Jetzt z.B. "E,D" oder "B,A"
-            const sundayLetters = sundayLetterRaw.split(',').map(s => s.trim());
-            let usedSundayLetter = '';
-
-            const dailyLetter = dailyInfo.letter;
-
-            const weekDays = ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
-            const dailyLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
-
-            let ruleExplanation = '';
-
-            // NEUE, VEREINFACHTE LOGIK: Nur Aufteilung des übergebenen Strings und Monats-Check
-            if (sundayLetters.length === 2) {
-                const letter1 = sundayLetters[0];
-                const letter2 = sundayLetters[1];
-
-                // Monat 0=Jan, 1=Feb, 2=März
-                if (simDate.getMonth() < 2) {
-                    // Erster Buchstabe für Januar und Februar
-                    usedSundayLetter = letter1;
-                    ruleExplanation = `**Lübecker Regel angewendet**: Das Jahr **${year}** verwendet die Buchstaben **${letter1}** (Jan/Feb) und **${letter2}** (ab März). Da der ${dayOfMonth}. ${monthStr} vor dem 1. März liegt, gilt der **erste Buchstabe (${letter1})**.`;
-                } else {
-                    // Zweiter Buchstabe ab März
-                    usedSundayLetter = letter2;
-                    ruleExplanation = `**Lübecker Regel angewendet**: Das Jahr **${year}** verwendet die Buchstaben **${letter1}** (Jan/Feb) und **${letter2}** (ab März). Da der ${dayOfMonth}. ${monthStr} nach dem 28. Februar liegt, gilt der **zweite Buchstabe (${letter2})** für den Rest des Jahres.`;
-                }
-            } else if (sundayLetters.length === 1) {
-                // Fallback für Jahre mit nur einem übergebenen Buchstaben
-                usedSundayLetter = sundayLetters[0];
-                ruleExplanation = `**Achtung**: Es ist nur ein Sonntagsbuchstabe (**${usedSundayLetter}**) hinterlegt. Dieser gilt das ganze Jahr über. (Dieses Format kann für Schaltjahre, in denen der Kalender nicht verschoben wird, oder für vereinfachte Kalender verwendet werden.)`;
-            } else {
-                // Error case
-                usedSundayLetter = 'X';
-                ruleExplanation = `**Fehler**: Das DayLetter-Format (**${sundayLetterRaw}**) ist ungültig. Es müssen ein oder zwei durch Komma getrennte Buchstaben übergeben werden (z.B. 'E,D').`;
-            }
-
-
-            // Index der Buchstaben im Array dailyLetters (A=0, B=1, ...)
-            const sunIndex = dailyLetters.indexOf(usedSundayLetter);
-            const dayIndex = dailyLetters.indexOf(dailyLetter);
-
-            // Die tatsächliche Differenz in Wochentagen. Sonntag = 0, Montag = 1, ...
-            let diff = (dayIndex - sunIndex + 7) % 7;
-
-            // --- Erstellung des HTML-Inhalts basierend auf der Vorlage ---
-
-            html += `<div class="modal-step">
-                                <h3 style="margin-top:0; color:#ffcc33; font-size: 1.2em;">Die Lübecker Wochentags-Regel</h3>
-                                <p style="font-size: 0.9em;">Zurück zu den Wochentagen: Ein Sonntagsbuchstabe (SB), z.B. das **${usedSundayLetter}** in unserem Beispiel, bedeutet, dass alle mit diesem Buchstaben bezeichneten Tage des äußeren Kreises Sonntage sind. Montag ist dann der nächste Buchstabe (folgend auf den SB), Dienstag der übernächste usw. </p>
-                            </div>
-                            <hr style="border-top: 1px solid #1a4261;"/>`;
-
-            // Das Beispiel mit dem aktuellen Datum durchrechnen
-            html += `<div class="modal-step">
-                                <strong style="color: #ffcc33;">Schritt 1: Sonntagsbuchstaben (SB) bestimmen und Regel anwenden 🗓️</strong>
-                                <p>
-                                    Die Jahreszahl **${year}** hat die(den) Sonntagsbuchstaben: **${sundayLetterRaw}**.
-                                    <br>
-                                    ${ruleExplanation}
-                                </p>
-                                <ul>
-                                    <li><span style="color: #ffcc33;">**Gültiger SB**</span>: **${usedSundayLetter}**</li>
-                                    <li><span style="color: #00aaff;">**TB für ${dayOfMonth}. ${monthStr}**</span>: **${dailyLetter}** (aus der 366-Tage-Tabelle)</li>
-                                </ul>
-                            </div>`;
-
-            // Visualisierung der Zählung
-            let countHtml = '<p style="font-size: 1.0em; text-align: center;">Zählung: ';
-            let currentLetter = usedSundayLetter;
-            let currentIndex = sunIndex;
-
-            for (let i = 0; i <= diff; i++) {
-
-                const color = i === 0 ? '#ffcc33' : i === diff ? '#00aaff' : '#aaa';
-
-                countHtml += `<span style="font-weight: bold; color: ${color};">${currentLetter}</span> <span style="font-size: 0.9em;">(${weekDays[i]})</span>`;
-
-                if (i < diff) {
-                    countHtml += ' → ';
-                    currentIndex = (currentIndex + 1) % 7;
-                    currentLetter = dailyLetters[currentIndex];
-                }
-            }
-            countHtml += '</p>';
-
-            html += `<div class="modal-step">
-                                <strong style="color: #ffcc33;">Schritt 2: Vom SB zum TB zählen 🧭</strong>
-                                <p>Man startet die Zählung beim **gültigen Sonntagsbuchstaben (${usedSundayLetter})** und zählt, bis man den **Tagesbuchstaben (${dailyLetter})** des aktuellen Datums erreicht. Der erste Buchstabe (${usedSundayLetter}) ist immer der **Sonntag**.</p>
-                                ${countHtml}
-                            </div>`;
-
-            html += `<div class="modal-step">
-                                <strong style="color: #ffcc33;">Schritt 3: Das Ergebnis ablesen 🎉</strong>
-                                <p>Der Wochentag ergibt sich aus der Position, die man beim Zählen erreicht hat (Position 0 = Sonntag, Position 6 = Samstag).</p>
-                                <p class="result" style="font-size: 1.2em; font-weight: bold; color: #15e963; margin-top: 15px;">Der **${dateStr}** ist ein **${dayOfWeekActual}**!</p>
-                            </div>`;
-        }
-
-        this.dom.modalBody.innerHTML = html;
-        this.showModal(this.dom.dayOfWeekModal); // Modalfenster anzeigen
-    }
-
-
-    showModal(modalElement) {
-        if (!modalElement) return;
-
-        modalElement.style.display = 'flex';
-        modalElement.style.zIndex = '9999';
-
-        // nach dem Rendern scrollen
-        requestAnimationFrame(() => {
-            const modalContent = modalElement.querySelector('.modal-content');
-            if (modalContent) {
-                modalContent.scrollTop = 0;
-                // alternativ:
-                // modalContent.scrollTo({ top: 0 });
-            }
-        });
-
-        document.body.style.overflow = 'hidden';
-
-        const focusable = modalElement.querySelector('button, [tabindex], a, input, textarea');
-        if (focusable) focusable.focus();
-    }
-
 
     /**
-     * Verbirgt ein beliebiges Modal-Element.
-     * @param {HTMLElement} modalElement - Das DOM-Element des Modals.
+     * Hilfsfunktion zur Erstellung eines 'datetime-local' Strings.
+     * @private
      */
-    hideModal(modalElement) {
-        if (!modalElement) return;
-        modalElement.style.display = 'none';
-        document.body.style.overflow = '';
-
-        // KORREKTUR: Die Logik, die den Header-Text zurücksetzt, wird entfernt,
-        // da der Header-Klick nun direkt das Modal öffnet und nicht mehr als Toggle für das Seitenpanel dient.
-        // if (modalElement.id === 'historyModal' && this.dom.historyHeader) {
-        //     this.dom.historyHeader.textContent = '▶️ Kunst & Geschichte';
-        // }
+    _createDateString(date) {
+        const pad = (num) => String(num).padStart(2, '0');
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
     }
 
+    /**
+     * Setzt die Simulation auf die aktuelle Systemzeit zurück.
+     */
     resetToCurrentTime() {
         const now = new Date();
-        const dt = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const dt = this._createDateString(now);
         this.dom.dateTimeInput.value = dt;
 
-        this.state.simDate = new Date(dt);
-
-        this.state.angleSun = TimeUtility.calculateSunAngle(this.state.simDate);
-
-        const frac = TimeUtility.calculateMoonAgeFromDate(this.state.simDate);
-        this.state.mondAlterFractional = frac;
-        this.state.mondAlter = Math.floor(frac) + 1;
-
-        const moonDiffRad = TimeUtility.calculateMoonRotationDifference(this.state.simDate);
-        this.state.angleMoon = TimeUtility.calculateMoonAngle(this.state.angleSun, moonDiffRad);
-
-        this.state.zodiacDayOffsetAngle = TimeUtility.calculateZodiacOffsetAngle(this.state.simDate, this.state.angleSun);
-        this.state.angleZodiac = this.state.zodiacDayOffsetAngle;
-
-        this.state.angleCalendarDisk = TimeUtility.calculateCalendarDiskAngle(this.state.simDate);
-
-        this.updateCalendarInfo();
-
+        // Zustand aktualisieren
+        this._updateAstroStateAngles(new Date(dt)); // Berechnung auslagern
         TimeUtility.updateLiveDateTime(this.state);
+
+        // UI aktualisieren
+        this.updateCalendarInfo();
         this.renderer.drawClock(this.state);
     }
 
@@ -578,47 +363,10 @@ export class InputController {
         }
     }
 
+    /**
+     * Delegiert die gesamte Layout-Logik an den Renderer.
+     */
     resizeCanvas() {
-        const BREAKPOINT = 850;
-        const isMobile = window.innerWidth < BREAKPOINT;
-        const margin = 20;
-        const controlsW = 250;
-        const gap = 30;
-        let availableW, availableH;
-
-        if (isMobile) {
-            availableW = window.innerWidth - margin * 2;
-            availableH = window.innerHeight - margin * 2;
-
-            let controlsTotalHeight = this.dom.controlsHeader.offsetHeight;
-            if (!this.dom.controlsContent.classList.contains('controls-content--hidden')) {
-                controlsTotalHeight += this.dom.controlsContent.offsetHeight;
-            }
-            controlsTotalHeight += this.dom.calendarHeader.offsetHeight;
-            if (!this.dom.calendarContent.classList.contains('controls-content--hidden')) {
-                controlsTotalHeight += this.dom.calendarContent.offsetHeight;
-            }
-            // Höhe für den Info-Button berücksichtigen
-            if (this.dom.infoButtonHeader) controlsTotalHeight += this.dom.infoButtonHeader.offsetHeight;
-            // Höhe für den History-Header berücksichtigen
-            if (this.dom.historyHeader) controlsTotalHeight += this.dom.historyHeader.offsetHeight;
-            // Der History-Content ist jetzt ein Modal und sollte hier nicht mehr berücksichtigt werden,
-            // aber falls das Panel noch existiert, wird es hier behandelt.
-            if (this.dom.historyContent && !this.dom.historyContent.classList.contains('controls-content--hidden')) {
-                controlsTotalHeight += this.dom.historyContent.offsetHeight;
-            }
-
-
-            availableH = window.innerHeight - controlsTotalHeight - gap - margin * 2;
-            availableH = Math.min(availableH, window.innerWidth * 0.9);
-        } else {
-            availableW = window.innerWidth - controlsW - gap - margin * 2;
-            availableH = window.innerHeight - margin * 2;
-        }
-
-        const size = Math.min(availableW, availableH);
-        const finalSize = Math.max(size, 200);
-        this.dom.canvas.width = this.dom.canvas.height = finalSize;
-        this.renderer.drawClock(this.state);
+        this.renderer.updateCanvasSizeAndRedraw(this.dom, this.state);
     }
 }
