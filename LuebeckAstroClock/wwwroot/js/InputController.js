@@ -345,14 +345,15 @@ export class InputController {
         this.dom.dateTimeInput.value = dt;
 
         // Zustand aktualisieren
-        this._updateAstroStateAngles(new Date(dt)); // Berechnung auslagern
-        TimeUtility.updateLiveDateTime(this.state);
+        this.state.simDate = new Date(dt); // NEU: simDate im Zustand setzen
+        this._updateAstroStateAngles(this.state.simDate); // Berechnung auslagern
+        TimeUtility.updateLiveDateTime(this.state); // Jetzt aktualisiert TimeUtility das liveDateTime-Feld korrekt
 
         // UI aktualisieren
         this.updateCalendarInfo();
         this.renderer.drawClock(this.state);
     }
-
+ 
     toggleAnimation() {
         this.state.animationRunning = !this.state.animationRunning;
         this.dom.toggleButton.textContent = this.state.animationRunning ? '⏸️ Pause' : '▶️ Animation starten';

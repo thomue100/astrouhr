@@ -6,4 +6,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="wwwroot\bilder\NewFolder1\**" />
+    <Compile Remove="wwwroot\bilder\NewFolder\**" />
+    <Content Remove="wwwroot\bilder\NewFolder1\**" />
+    <Content Remove="wwwroot\bilder\NewFolder\**" />
+    <EmbeddedResource Remove="wwwroot\bilder\NewFolder1\**" />
+    <EmbeddedResource Remove="wwwroot\bilder\NewFolder\**" />
+    <None Remove="wwwroot\bilder\NewFolder1\**" />
+    <None Remove="wwwroot\bilder\NewFolder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\js\js\" />
+  </ItemGroup>
+
 </Project>
